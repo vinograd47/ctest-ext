@@ -335,11 +335,55 @@ endfunction()
 # CTest Ext initialize
 #
 
-function(ctest_ext_init)
-    check_vars_def(
-        CTEST_STAGE
-        CTEST_TARGET_SYSTEM CTEST_MODEL
-        CTEST_DASHBOARD_ROOT CTEST_SOURCE_DIRECTORY CTEST_BINARY_DIRECTORY)
+macro(ctest_ext_init)
+    # Dashboard settings
+
+    site_name(SITE_NAME)
+
+    set_ifndef(CTEST_TARGET_SYSTEM                      "${CMAKE_SYSTEM}-${CMAKE_SYSTEM_PROCESSOR}")
+    set_ifndef(CTEST_MODEL                              "Experimental")
+
+    set_ifndef(CTEST_SITE                               "${SITE_NAME}")
+    set_ifndef(CTEST_BUILD_NAME                         "${CTEST_TARGET_SYSTEM}-${CTEST_MODEL}")
+
+    set_ifndef(CTEST_DASHBOARD_ROOT                     "${CTEST_SCRIPT_DIRECTORY}/${CTEST_TARGET_SYSTEM}/${CTEST_MODEL}")
+    set_ifndef(CTEST_SOURCE_DIRECTORY                   "${CTEST_DASHBOARD_ROOT}/source")
+    set_ifndef(CTEST_BINARY_DIRECTORY                   "${CTEST_DASHBOARD_ROOT}/build")
+    set_ifndef(CTEST_NOTES_LOG_FILE                     "${CTEST_DASHBOARD_ROOT}/ctest_notes_log.txt")
+
+    # Repository settings
+
+    find_package(Git QUIET)
+
+    if(EXISTS "${GIT_EXECUTABLE}")
+        set_ifndef(CTEST_WITH_UPDATE                        TRUE)
+        set_ifndef(CTEST_GIT_COMMAND                        "${GIT_EXECUTABLE}")
+    else()
+        set_ifndef(CTEST_WITH_UPDATE                        FALSE)
+    endif()
+
+    # Find tools
+
+    if(NOT DEFINED CTEST_COVERAGE_COMMAND)
+        find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
+    endif()
+
+    if(NOT DEFINED CTEST_GCOVR_EXECUTABLE)
+        find_program(CTEST_GCOVR_EXECUTABLE NAMES gcovr)
+    endif()
+
+    if(NOT DEFINED CTEST_MEMORYCHECK_COMMAND)
+        find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
+    endif()
+
+    # Stage
+
+    set_ifndef(CTEST_STAGE "${CTEST_SCRIPT_ARG}")
+    if(NOT CTEST_STAGE)
+        set(CTEST_STAGE "Start;Configure;Build;Test;Coverage;MemCheck;Submit;Extra")
+    endif()
+
+    # Initialize
 
     set(HAVE_UPDATES TRUE)
 
@@ -382,7 +426,7 @@ function(ctest_ext_init)
     endif()
 
     set(HAVE_UPDATES ${HAVE_UPDATES} PARENT_SCOPE)
-endfunction()
+endmacro()
 
 #
 # CTest Ext set default vars
@@ -563,58 +607,3 @@ function(ctest_ext_submit)
         ctest_submit()
     endif()
 endfunction()
-
-#
-# Dashboard settings
-#
-
-site_name(SITE_NAME)
-
-set_ifndef(CTEST_TARGET_SYSTEM                      "${CMAKE_SYSTEM}-${CMAKE_SYSTEM_PROCESSOR}")
-set_ifndef(CTEST_MODEL                              "Experimental")
-
-set_ifndef(CTEST_SITE                               "${SITE_NAME}")
-set_ifndef(CTEST_BUILD_NAME                         "${CTEST_TARGET_SYSTEM}-${CTEST_MODEL}")
-
-set_ifndef(CTEST_DASHBOARD_ROOT                     "${CTEST_SCRIPT_DIRECTORY}/${CTEST_TARGET_SYSTEM}/${CTEST_MODEL}")
-set_ifndef(CTEST_SOURCE_DIRECTORY                   "${CTEST_DASHBOARD_ROOT}/source")
-set_ifndef(CTEST_BINARY_DIRECTORY                   "${CTEST_DASHBOARD_ROOT}/build")
-set_ifndef(CTEST_NOTES_LOG_FILE                     "${CTEST_DASHBOARD_ROOT}/ctest_notes_log.txt")
-
-#
-# Repository settings
-#
-
-find_package(Git QUIET)
-
-if(EXISTS "${GIT_EXECUTABLE}")
-    set_ifndef(CTEST_WITH_UPDATE                        TRUE)
-    set_ifndef(CTEST_GIT_COMMAND                        "${GIT_EXECUTABLE}")
-else()
-    set_ifndef(CTEST_WITH_UPDATE                        FALSE)
-endif()
-
-#
-# Find tools
-#
-
-if(NOT DEFINED CTEST_COVERAGE_COMMAND)
-    find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
-endif()
-
-if(NOT DEFINED CTEST_GCOVR_EXECUTABLE)
-    find_program(CTEST_GCOVR_EXECUTABLE NAMES gcovr)
-endif()
-
-if(NOT DEFINED CTEST_MEMORYCHECK_COMMAND)
-    find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-endif()
-
-#
-# Stage
-#
-
-set_ifndef(CTEST_STAGE "${CTEST_SCRIPT_ARG}")
-if(NOT CTEST_STAGE)
-    set(CTEST_STAGE "Start;Configure;Build;Test;Coverage;MemCheck;Submit;Extra")
-endif()
