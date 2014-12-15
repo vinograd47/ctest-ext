@@ -28,7 +28,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.1)
+set(CTEST_EXT_VERSION  0.2)
 
 include(CMakeParseArguments)
 
@@ -306,9 +306,6 @@ function(ctest_ext_dump_notes)
     ctest_note("CTEST_CMAKE_GENERATOR                 : ${CTEST_CMAKE_GENERATOR}")
     ctest_note("CTEST_CONFIGURATION_TYPE              : ${CTEST_CONFIGURATION_TYPE}")
     ctest_note("CTEST_CMAKE_OPTIONS                   : ${CTEST_CMAKE_OPTIONS}")
-    ctest_note("")
-
-    ctest_note("CTEST_BUILD_TARGET                    : ${CTEST_BUILD_TARGET}")
     ctest_note("CTEST_BUILD_FLAGS                     : ${CTEST_BUILD_FLAGS}")
     ctest_note("")
 
@@ -514,12 +511,50 @@ endmacro()
 #
 
 function(ctest_ext_build)
+    set(options "")
+    set(oneValueArgs "TARGET")
+    set(multiValueArgs "TARGETS")
+    cmake_parse_arguments(BUILD "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
     if(CTEST_STAGE MATCHES "Build")
         ctest_info("==========================================================================")
         ctest_info("Build")
         ctest_info("==========================================================================")
 
-        ctest_build()
+        if(BUILD_TARGET)
+            ctest_info("Build target : ${BUILD_TARGET}")
+            ctest_build(TARGET "${BUILD_TARGET}")
+        elseif(BUILD_TARGETS)
+            ctest_info("Build targets : ${BUILD_TARGETS}")
+
+            # ctest_build doesn't support multiple target, emulate them with CMake script
+            set(BUILD_SCRIPT "${CTEST_BINARY_DIRECTORY}/ctest_ext_build.cmake")
+            file(REMOVE "${BUILD_SCRIPT}")
+
+            foreach(target ${BUILD_TARGETS})
+                file(APPEND "${BUILD_SCRIPT}" "message(STATUS \"Build target : ${target}\") \n")
+
+                set(BUILD_COMMAND "execute_process(COMMAND \"${CMAKE_COMMAND}\"")
+                set(BUILD_COMMAND "${BUILD_COMMAND} --build \"${CTEST_BINARY_DIRECTORY}\"")
+                if(NOT target MATCHES "^(all|ALL)$")
+                    set(BUILD_COMMAND "${BUILD_COMMAND} --target \"${target}\"")
+                endif()
+                set(BUILD_COMMAND "${BUILD_COMMAND} --config \"${CTEST_CONFIGURATION_TYPE}\"")
+                if(CTEST_BUILD_FLAGS)
+                    set(BUILD_COMMAND "${BUILD_COMMAND} -- ${CTEST_BUILD_FLAGS}")
+                endif()
+
+                set(BUILD_COMMAND "${BUILD_COMMAND} WORKING_DIRECTORY \"${CTEST_BINARY_DIRECTORY}\")")
+
+                file(APPEND "${BUILD_SCRIPT}" "${BUILD_COMMAND} \n")
+            endforeach()
+
+            set(CTEST_BUILD_COMMAND "${CMAKE_COMMAND} -P ${BUILD_SCRIPT}")
+            ctest_build()
+        else()
+            ctest_info("Build target : ALL")
+            ctest_build()
+        endif()
     endif()
 endfunction()
 
