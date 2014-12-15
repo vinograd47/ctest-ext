@@ -424,8 +424,6 @@ macro(ctest_ext_init)
             endif()
         endif()
     endif()
-
-    set(HAVE_UPDATES ${HAVE_UPDATES} PARENT_SCOPE)
 endmacro()
 
 #
