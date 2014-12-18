@@ -445,11 +445,11 @@ endmacro()
 #
 
 macro(ctest_ext_start)
-    ctest_info("==========================================================================")
-    ctest_info("Start testing MODEL ${CTEST_MODEL}")
-    ctest_info("==========================================================================")
-
     set_ifndef(CTEST_TRACK "${CTEST_MODEL}")
+
+    ctest_info("==========================================================================")
+    ctest_info("Start testing MODEL ${CTEST_MODEL} TRACK ${CTEST_TRACK}")
+    ctest_info("==========================================================================")
 
     ctest_start("${CTEST_MODEL}" TRACK "${CTEST_TRACK}" APPEND)
 
