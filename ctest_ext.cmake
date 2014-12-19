@@ -186,6 +186,7 @@ endfunction()
 
 function(add_cmake_option NAME TYPE VALUE)
     if(NOT CTEST_CMAKE_OPTIONS MATCHES "-D${NAME}")
+        string(REPLACE ";" " " VALUE "${VALUE}")
         list(APPEND CTEST_CMAKE_OPTIONS "-D${NAME}:${TYPE}=${VALUE}")
     endif()
 
