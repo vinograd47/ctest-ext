@@ -635,6 +635,7 @@ function(ctest_ext_submit)
         ctest_info("==========================================================================")
 
         if(CTEST_UPLOAD_FILES)
+            ctest_info("Upload files : ${CTEST_UPLOAD_FILES}")
             ctest_upload(FILES ${CTEST_UPLOAD_FILES})
         endif()
 
