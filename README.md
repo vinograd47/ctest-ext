@@ -1,6 +1,6 @@
 # CTest Extension module
 
-[![Build Status](https://travis-ci.org/jet47/ctest-ext.svg)](https://travis-ci.org/jet47/ctest-ext)
+[![Build Status](https://travis-ci.org/jet47/ctest-ext.svg)](https://travis-ci.org/jet47/ctest-ext) [![Documentation Status](https://readthedocs.org/projects/ctest-ext/badge/?version=latest)](https://readthedocs.org/projects/ctest-ext/?badge=latest)
 
 --------------------------------------------------------------------------
 
