@@ -1,0 +1,15 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+env:
+  - CTEST_MODEL=Experimental
+  - CTEST_MODEL=Nightly
+install:
+  - sudo pip install gcovr
+  - sudo apt-get install valgrind
+  - wget -qO- http://www.cmake.org/files/v3.1/cmake-3.1.0-Linux-x86_64.tar.gz | tar xvz
+script:
+  - ./cmake-3.1.0-Linux-x86_64/bin/ctest -VV -S ./template/template_test.cmake -DCTEST_MODEL=$CTEST_MODEL -DCTEST_EMPTY_BINARY_DIRECTORY=FALSE
+notifications:
+  email: false

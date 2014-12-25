@@ -1,5 +1,7 @@
 # CTest Extension module
 
+[![Build Status](https://travis-ci.org/jet47/ctest-ext.svg)](https://travis-ci.org/jet47/ctest-ext)
+
 --------------------------------------------------------------------------
 
 ## Table of Contents
