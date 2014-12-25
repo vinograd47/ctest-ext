@@ -229,8 +229,8 @@ function(run_gcovr)
         endif()
         file(MAKE_DIRECTORY "${GCOVR_REPORT_BASE_DIR}" "${GCOVR_XML_DIR}")
 
-        ctest_info("Generate XML gcovr report : ${GCOVR_COMMAND_LINE} --xml --xml-pretty -o coverage.xml")
-        execute_process(COMMAND ${GCOVR_COMMAND_LINE} --xml --xml-pretty -o coverage.xml
+        ctest_info("Generate XML gcovr report : ${GCOVR_COMMAND_LINE} --xml --xml-pretty -o ${GCOVR_OUTPUT_BASE_NAME}.xml")
+        execute_process(COMMAND ${GCOVR_COMMAND_LINE} --xml --xml-pretty -o "${GCOVR_OUTPUT_BASE_NAME}.xml"
             WORKING_DIRECTORY "${GCOVR_XML_DIR}")
     endif()
 
@@ -241,8 +241,8 @@ function(run_gcovr)
         endif()
         file(MAKE_DIRECTORY "${GCOVR_REPORT_BASE_DIR}" "${GCOVR_HTML_DIR}")
 
-        ctest_info("Generate HTML gcovr report : ${GCOVR_COMMAND_LINE} --html --html-details -o coverage.html")
-        execute_process(COMMAND ${GCOVR_COMMAND_LINE} --html --html-details -o coverage.html
+        ctest_info("Generate HTML gcovr report : ${GCOVR_COMMAND_LINE} --html --html-details -o ${GCOVR_OUTPUT_BASE_NAME}.html")
+        execute_process(COMMAND ${GCOVR_COMMAND_LINE} --html --html-details -o "${GCOVR_OUTPUT_BASE_NAME}.html"
             WORKING_DIRECTORY "${GCOVR_HTML_DIR}")
     endif()
 endfunction()
@@ -433,9 +433,9 @@ macro(ctest_ext_set_default)
     set_ifndef(CTEST_EMPTY_BINARY_DIRECTORY TRUE)
     set_ifndef(CTEST_WITH_TESTS TRUE)
     set_ifndef(CTEST_TEST_TIMEOUT 600)
-    set_ifndef(CTEST_WITH_MEMCHECK FALSE)
     set_ifndef(CTEST_WITH_COVERAGE FALSE)
     set_ifndef(CTEST_WITH_GCOVR FALSE)
+    set_ifndef(CTEST_WITH_MEMCHECK FALSE)
     set_ifndef(CTEST_WITH_SUBMIT FALSE)
     set_ifndef(CTEST_GCOVR_REPORT_DIR "${CTEST_BINARY_DIRECTORY}/coverage")
     list(APPEND CTEST_UPLOAD_FILES "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
