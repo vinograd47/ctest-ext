@@ -1,0 +1,17 @@
+site_name: CTest Extension module
+site_author: Vladislav Vinogradov
+
+repo_url: https://github.com/jet47/ctest-ext
+
+pages:
+- ['index.md', 'Home']
+- ['usage.md', 'Usage']
+- ['configuration.md', 'Configuration']
+- ['options/mandatory.md', 'Options', 'Mandatory testing options']
+- ['options/repository.md', 'Options', 'Repository settings']
+- ['options/testing.md', 'Options', 'Optional testing settings']
+- ['ci.md', 'CI']
+- ['example.md', 'Example']
+- ['license.md', 'About', 'License']
+
+copyright: Copyright &copy; 2014, Vlad Vinogradov.
