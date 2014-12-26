@@ -48,5 +48,5 @@ about testing and will add it to submission as a note.
 
 By default is equal to `${CTEST_DASHBOARD_ROOT}/ctest_notes_log.txt`.
 
-[CMAKE_SYSTEM]: <http://www.cmake.org/cmake/help/v3.1/variable/CMAKE_SYSTEM.html?highlight=cmake_system>
-[CMAKE_SYSTEM_PROCESSOR]: <http://www.cmake.org/cmake/help/v3.1s/variable/CMAKE_SYSTEM_PROCESSOR.html?highlight=cmake_system_processor>
+[CMAKE_SYSTEM]: <http://www.cmake.org/cmake/help/v3.1/variable/CMAKE_SYSTEM.html>
+[CMAKE_SYSTEM_PROCESSOR]: <http://www.cmake.org/cmake/help/v3.1s/variable/CMAKE_SYSTEM_PROCESSOR.html>

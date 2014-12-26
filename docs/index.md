@@ -9,7 +9,7 @@ The CTest Extension module supports the following functionality:
 * clone/update git repository;
 * configure CMake project;
 * build CMake project;
-* run tests;
+* run project's tests;
 * build coverage report (in CTest format and in gcovr format);
 * run dynamic analysis (like valgrind);
 * upload testing results to remote server (eg. CDash web server).
