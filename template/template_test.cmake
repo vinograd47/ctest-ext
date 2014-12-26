@@ -2,14 +2,14 @@
 # Include CTest Ext module
 #
 
-include("${CTEST_SCRIPT_DIRECTORY}/../ctest_ext.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/../ctest_ext.cmake")
 
 #
 # Initialize testing
 #
 
-set_ifndef(CTEST_DASHBOARD_ROOT     "${CTEST_SCRIPT_DIRECTORY}/dashboard")
-set_ifndef(CTEST_SOURCE_DIRECTORY   "${CTEST_SCRIPT_DIRECTORY}")
+set_ifndef(CTEST_DASHBOARD_ROOT     "${CMAKE_CURRENT_LIST_DIR}/dashboard")
+set_ifndef(CTEST_SOURCE_DIRECTORY   "${CMAKE_CURRENT_LIST_DIR}")
 
 set_ifndef(CTEST_WITH_UPDATE        FALSE)
 
