@@ -72,7 +72,7 @@ function(check_if_matches VAR)
     endforeach()
 
     if(NOT found)
-        message(FATAL_ERROR "${VAR} must match one from ${ARGN} list")
+        message(FATAL_ERROR "${VAR}=${${VAR}} must match one from ${ARGN} list")
     endif()
 endfunction()
 

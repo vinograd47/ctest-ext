@@ -19,7 +19,7 @@ ctest_ext_init()
 # Check supported targets and models
 #
 
-check_if_matches(CTEST_TARGET_SYSTEM    "^Linux")
+check_if_matches(CTEST_TARGET_SYSTEM    "^Linux" "^MacOS")
 check_if_matches(CTEST_MODEL            "^Experimental$" "^Nightly$")
 
 #
@@ -32,8 +32,12 @@ set_ifndef(CTEST_WITH_TESTS             TRUE)
 set_ifndef(CTEST_WITH_COVERAGE          FALSE)
 
 if(CTEST_MODEL MATCHES "Nightly")
-    set_ifndef(CTEST_WITH_GCOVR         TRUE)
-    set_ifndef(CTEST_WITH_MEMCHECK      TRUE)
+    if(CTEST_GCOVR_EXECUTABLE AND EXISTS "${CTEST_MEMORYCHECK_COMMAND}")
+        set_ifndef(CTEST_WITH_GCOVR     TRUE)
+    endif()
+    if(CTEST_MEMORYCHECK_COMMAND AND EXISTS "${CTEST_MEMORYCHECK_COMMAND}")
+        set_ifndef(CTEST_WITH_MEMCHECK  TRUE)
+    endif()
 else()
     set_ifndef(CTEST_WITH_GCOVR         FALSE)
     set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
