@@ -1,6 +1,6 @@
 # Usage with CI systems
 
-The testing script can be used with CI systems, like buildbot, Jenkins, etc.
+The testing script can be used with CI systems, like buildbot, Jenkins, Travis, etc.
 The CI system might call the same CTest command to perform project configuration, build and testing.
 
 The testing script supports step-by-step mode, to split all steps on CI system. For example:

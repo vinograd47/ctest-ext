@@ -1,4 +1,4 @@
-# Usage
+# Quick start
 
 The CTest Extension module is supposed to be used in a project CTest script.
 Project developers provide the testing script (along with source code or separately),

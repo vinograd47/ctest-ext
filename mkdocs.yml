@@ -5,13 +5,14 @@ repo_url: https://github.com/jet47/ctest-ext
 
 pages:
 - ['index.md', 'Home']
-- ['usage.md', 'Usage', 'Usage']
-- ['configuration.md', 'Usage', 'Configuration']
+- ['usage/quick_start.md', 'Usage', 'Quick start']
+- ['usage/configuration.md', 'Usage', 'Configuration']
+- ['usage/example.md', 'Usage', 'Example of project script']
 - ['options/mandatory.md', 'Options', 'Mandatory testing options']
 - ['options/repository.md', 'Options', 'Repository settings']
 - ['options/testing.md', 'Options', 'Optional testing settings']
-- ['ci.md', 'CI', 'CI']
-- ['example.md', 'Example', 'Example']
-- ['license.md', 'About', 'License']
+- ['ci/common.md', 'CI', 'Usage with CI systems']
+- ['ci/travis.md', 'CI', 'Travis CI example']
+- ['about/license.md', 'About', 'License']
 
 copyright: Copyright &copy; 2014, Vlad Vinogradov.

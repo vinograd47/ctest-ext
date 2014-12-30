@@ -1,4 +1,4 @@
-# Example of CTest project script
+# Example of project script
 
 Assuming we have a CMake project with the following structure:
 
