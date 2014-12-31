@@ -13,6 +13,7 @@ pages:
 - ['options/testing.md', 'Options', 'Optional testing settings']
 - ['ci/common.md', 'CI', 'Usage with CI systems']
 - ['ci/travis.md', 'CI', 'Travis CI example']
+- ['ci/jenkins.md', 'CI', 'Jenkins CI example']
 - ['about/license.md', 'About', 'License']
 
 copyright: Copyright &copy; 2014, Vlad Vinogradov.
