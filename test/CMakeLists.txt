@@ -3,6 +3,8 @@ enable_testing()
 
 project(CTestExt NONE)
 
+include(CTest)
+
 get_filename_component(CTEST_EXT_ROOT_DIR "${CMAKE_SOURCE_DIR}/.." ABSOLUTE)
 
 set(TEMPLATE_PROJECT_DIR "${CTEST_EXT_ROOT_DIR}/template")
