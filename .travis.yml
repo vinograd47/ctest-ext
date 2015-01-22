@@ -12,6 +12,10 @@ script:
   - mkdir -p test/build
   - cd test/build
   - ../../cmake-3.1.0-Linux-x86_64/bin/cmake ..
-  - make Nightly
+  - make NightlyStart
+  - make NightlyConfigure
+  - make NightlyBuild
+  - make NightlyTest
+  - make NightlySubmit
 notifications:
   email: false
