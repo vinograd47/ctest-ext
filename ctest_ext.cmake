@@ -334,6 +334,8 @@ endfunction()
 #
 
 macro(ctest_ext_init)
+    message("CTEST_FULL_OUTPUT")
+
     # Dashboard settings
 
     site_name(SITE_NAME)
