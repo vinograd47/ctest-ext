@@ -14,6 +14,8 @@ Add shell step to build section with the following content:
     rm -rf $WORKSPACE/$CTEST_TARGET_SYSTEM/$CTEST_MODEL/build/Testing
 
     cat > $CTEST_TARGET_SYSTEM/$CTEST_MODEL/project_jenkins_test.cmake << EOF
+        include("$WORKSPACE/ctest_ext.cmake")
+
         set(CTEST_TARGET_SYSTEM     "$CTEST_TARGET_SYSTEM")
         set(CTEST_MODEL             "$CTEST_MODEL")
 
@@ -22,6 +24,11 @@ Add shell step to build section with the following content:
         set(CTEST_BINARY_DIRECTORY  "${CTEST_DASHBOARD_ROOT}/build")
 
         set(CTEST_WITH_UPDATE       FALSE)
+
+        if(CTEST_TARGET_SYSTEM MATCHES "Android")
+            add_cmake_cache_entry("ANDROID_NDK" TYPE "PATH" "/opt/android-ndk-r10")
+            add_cmake_cache_entry("ANDROID_EXECUTABLE" TYPE "FILEPATH" "/opt/android-sdk-linux/tools/android")
+        endif()
 
         include("\${CTEST_SOURCE_DIRECTORY}/project_test.cmake")
     EOF

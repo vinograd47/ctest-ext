@@ -22,33 +22,35 @@ Add `project_test.cmake` file to the project root folder with the following cont
     # Include CTest Ext module
     #
 
-    function(update_ctest_ext)
-        message("Update CTest Extension module")
+    if(NOT CTEST_EXT_INCLUDED)
+        function(update_ctest_ext)
+            message("Update CTest Extension module")
 
-        find_package(Git QUIET)
+            find_package(Git QUIET)
 
-        set(repo_url "https://github.com/jet47/ctest-ext.git")
-        set(repo_dir "${CMAKE_CURRENT_LIST_DIR}/ctest-ext")
-        set(tmp_dir "${CMAKE_CURRENT_LIST_DIR}/ctest-ext-tmp")
+            set(repo_url "https://github.com/jet47/ctest-ext.git")
+            set(repo_dir "${CMAKE_CURRENT_LIST_DIR}/ctest-ext")
+            set(tmp_dir "${CMAKE_CURRENT_LIST_DIR}/ctest-ext-tmp")
 
-        if(NOT EXISTS "${repo_dir}")
-            set(CTEST_CHECKOUT_COMMAND "${GIT_EXECUTABLE} clone ${repo_url} ${repo_dir}")
+            if(NOT EXISTS "${repo_dir}")
+                set(CTEST_CHECKOUT_COMMAND "${GIT_EXECUTABLE} clone ${repo_url} ${repo_dir}")
+            endif()
+            set(CTEST_UPDATE_COMMAND "${GIT_EXECUTABLE}")
+
+            ctest_start("CTestExt" "${repo_dir}" "${tmp_dir}")
+            ctest_update(SOURCE "${repo_dir}")
+
+            file(REMOVE_RECURSE "${tmp_dir}")
+
+            set(CTEST_EXT_MODULE_PATH "${repo_dir}/ctest_ext.cmake" PARENT_SCOPE)
+        endfunction()
+
+        if(NOT DEFINED CTEST_EXT_MODULE_PATH)
+            update_ctest_ext()
         endif()
-        set(CTEST_UPDATE_COMMAND "${GIT_EXECUTABLE}")
 
-        ctest_start("CTestExt" "${repo_dir}" "${tmp_dir}")
-        ctest_update(SOURCE "${repo_dir}")
-
-        file(REMOVE_RECURSE "${tmp_dir}")
-
-        set(CTEST_EXT_MODULE_PATH "${repo_dir}/ctest_ext.cmake" PARENT_SCOPE)
-    endfunction()
-
-    if(NOT DEFINED CTEST_EXT_MODULE_PATH)
-        update_ctest_ext()
+        include("${CTEST_EXT_MODULE_PATH}")
     endif()
-
-    include("${CTEST_EXT_MODULE_PATH}")
 
     #
     # Repository settings
