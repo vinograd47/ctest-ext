@@ -40,17 +40,6 @@ CMake generator.
 
 CMake configuration type (eg. Release, Debug).
 
-## CTEST_CMAKE_OPTIONS
-
-Extra options for CMake command. This options will overwrite default ones.
-For example:
-
-    set(CTEST_CMAKE_OPTIONS "-DCUDA_TOOLKIT_ROOT_DIR:PATH=/usr/local/cuda-6.5")
-
-## CTEST_BUILD_TARGET
-
-Target to build. By default is empty, which means ALL target.
-
 ## CTEST_BUILD_FLAGS
 
 Extra options for build command. For example:
@@ -100,13 +89,7 @@ List of notes files, which should be included into submission.
 
 List of files, which should be uploaded to the remote server.
 
-By default, CMake cache will be uploaded
-
-## CTEST_TMP_DIR
-
-Path to temporary directory.
-
-By default is equal to one of `$ENV{TEMP}`, `$ENV{TMP}`, `$ENV{TMPDIR}` or `/tmp`.
+By default, CMake cache will be uploaded.
 
 ## CTEST_TRACK
 

@@ -11,8 +11,6 @@ include("@CTEST_EXT_ROOT_DIR@/ctest_ext.cmake")
 set(CTEST_DASHBOARD_ROOT     "@DASHBOARD_ROOT@")
 set(CTEST_SOURCE_DIRECTORY   "@TEMPLATE_PROJECT_DIR@")
 
-set(CTEST_WITH_UPDATE        FALSE)
-
 ctest_ext_init()
 
 #
@@ -54,7 +52,7 @@ if(CTEST_UPDATE_CMAKE_CACHE)
     set_ifndef(CTEST_CONFIGURATION_TYPE "Debug")
 
     if(CTEST_WITH_COVERAGE OR CTEST_WITH_GCOVR)
-        add_cmake_option("CMAKE_CXX_FLAGS" "STRING" "--coverage")
+        add_cmake_cache_entry("CMAKE_CXX_FLAGS" TYPE "STRING" "--coverage")
     endif()
 endif()
 
@@ -62,15 +60,7 @@ endif()
 # Start testing
 #
 
-ctest_ext_set_default()
-
 ctest_ext_start()
-
-#
-# Clean binary directory if needed
-#
-
-ctest_ext_clean_build()
 
 #
 # Configure

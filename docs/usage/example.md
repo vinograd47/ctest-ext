@@ -54,7 +54,8 @@ Add `project_test.cmake` file to the project root folder with the following cont
     # Repository settings
     #
 
-    set_ifndef(CTEST_PROJECT_GIT_URL "https://github.com/user/project.git")
+    set_ifndef(CTEST_PROJECT_GIT_URL    "https://github.com/user/project.git")
+    set_ifndef(CTEST_WITH_UPDATE        TRUE)
 
     #
     # Initialize testing
@@ -73,10 +74,6 @@ Add `project_test.cmake` file to the project root folder with the following cont
     # Configure the testing model (set options, not specified by user, to default values)
     #
 
-    set_ifndef(CTEST_UPDATE_CMAKE_CACHE     TRUE)
-    set_ifndef(CTEST_EMPTY_BINARY_DIRECTORY TRUE)
-    set_ifndef(CTEST_WITH_TESTS             TRUE)
-    set_ifndef(CTEST_TEST_TIMEOUT           600)
     if(CTEST_MODEL MATCHES "Nightly")
         set_ifndef(CTEST_WITH_COVERAGE      TRUE)
         set_ifndef(CTEST_WITH_GCOVR         TRUE)
@@ -86,7 +83,7 @@ Add `project_test.cmake` file to the project root folder with the following cont
         set_ifndef(CTEST_WITH_GCOVR         FALSE)
         set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
     endif()
-    set_ifndef(CTEST_WITH_SUBMIT        TRUE)
+    set_ifndef(CTEST_WITH_SUBMIT            TRUE)
 
     #
     # Configure cmake options
@@ -95,9 +92,9 @@ Add `project_test.cmake` file to the project root folder with the following cont
     if(CTEST_UPDATE_CMAKE_CACHE)
         if(CTEST_TARGET_SYSTEM MATCHES "Windows")
             if(CTEST_TARGET_SYSTEM MATCHES "64")
-                set_ifndef(CTEST_CMAKE_GENERATOR "Visual Studio 12 Win64")
+                set_ifndef(CTEST_CMAKE_GENERATOR "Visual Studio 13 Win64")
             else()
-                set_ifndef(CTEST_CMAKE_GENERATOR "Visual Studio 12")
+                set_ifndef(CTEST_CMAKE_GENERATOR "Visual Studio 13")
             endif()
         else()
             set_ifndef(CTEST_CMAKE_GENERATOR "Unix Makefiles")
@@ -105,13 +102,13 @@ Add `project_test.cmake` file to the project root folder with the following cont
         set_ifndef(CTEST_CONFIGURATION_TYPE "Debug")
 
         if(CTEST_MODEL MATCHES "Nightly")
-            add_cmake_option("ENABLE_CPPCHECK" "BOOL" "ON")
+            add_cmake_cache_entry("ENABLE_CPPCHECK" "ON" TYPE "BOOL")
         endif()
 
         if(CTEST_WITH_COVERAGE OR CTEST_WITH_GCOVR)
-            add_cmake_option("ENABLE_COVERAGE" "BOOL" "ON")
+            add_cmake_cache_entry("ENABLE_COVERAGE" "ON" TYPE "BOOL")
         else()
-            add_cmake_option("ENABLE_COVERAGE" "BOOL" "OFF")
+            add_cmake_cache_entry("ENABLE_COVERAGE" "OFF" TYPE "BOOL")
         endif()
     endif()
 
@@ -119,15 +116,7 @@ Add `project_test.cmake` file to the project root folder with the following cont
     # Start testing
     #
 
-    ctest_ext_set_default()
-
     ctest_ext_start()
-
-    #
-    # Clean binary directory if needed
-    #
-
-    ctest_ext_clean_build()
 
     #
     # Configure
@@ -155,7 +144,7 @@ Add `project_test.cmake` file to the project root folder with the following cont
     # Coverage
     #
 
-    ctest_ext_coverage(GCOVR_OPTIONS XML HTML VERBOSE OUTPUT_BASE_NAME "coverage")
+    ctest_ext_coverage(GCOVR_OPTIONS XML HTML VERBOSE)
 
     #
     # MemCheck

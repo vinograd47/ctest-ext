@@ -38,11 +38,11 @@ Example of such set:
 
 The CTest Extension module can be configured in two ways:
 
-1. Set the required parameters before including the CTest Extension module:
+1. Set the required parameters before including the project's testing script:
 
         set(CTEST_TARGET_SYSTEM "Linux-Ubuntu-14.04-x64")
         set(CTEST_MODEL         "Performance")
-        include("${CTEST_SCRIPT_DIRECTORY}/ctest_ext.cmake")
+        include("~/Dashboards/project/project_test.cmake")
 
 2. Pass the options with CTest command line:
 
