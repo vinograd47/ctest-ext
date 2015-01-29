@@ -641,7 +641,7 @@ macro(ctest_ext_configure)
             ctest_ext_info("Clean binary directory : ${CTEST_BINARY_DIRECTORY}")
             ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
         elseif(CTEST_UPDATE_CMAKE_CACHE AND EXISTS "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
-            ctest_ext_info("Remove old CMake cache : ${CTEST_BINARY_DIRECTORY}/CMakeCache.txt}")
+            ctest_ext_info("Remove old CMake cache : ${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
             file(REMOVE "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
         endif()
 
