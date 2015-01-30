@@ -305,7 +305,7 @@ endfunction()
 #
 #   `REPORT_BASE_DIR` specifies base directory for output reports.
 #   If not specified `CTEST_GCOVR_REPORT_DIR` variable is used,
-#   which by default is equal to "${CTEST_BINARY_DIRECTORY}/coverage"
+#   which by default is equal to "${CTEST_BINARY_DIRECTORY}/gcovr"
 #
 #   `OPTIONS` specifies additional options for gcovr command line.
 #
@@ -332,7 +332,8 @@ function(run_gcovr)
     endif()
     if(GCOVR_OPTIONS)
         list(APPEND GCOVR_COMMAND_LINE ${GCOVR_OPTIONS})
-    elseif(CTEST_GCOVR_EXTRA_FLAGS)
+    endif()
+    if(CTEST_GCOVR_EXTRA_FLAGS)
         list(APPEND GCOVR_COMMAND_LINE ${CTEST_GCOVR_EXTRA_FLAGS})
     endif()
 
@@ -359,6 +360,91 @@ function(run_gcovr)
         execute_process(COMMAND ${GCOVR_COMMAND_LINE} --html --html-details -o "${GCOVR_OUTPUT_BASE_NAME}.html"
             WORKING_DIRECTORY "${GCOVR_HTML_DIR}")
     endif()
+endfunction()
+
+##################################################################################
+# lcov coverage report commands
+##################################################################################
+
+#
+# run_lcov([OUTPUT_HTML_DIR <output_html_dir>]
+#          [EXTRACT] <extract patterns>
+#          [REMOVE] <remove patterns>
+#          [OPTIONS <lcov extra options>] [GENTHML_OPTIONS <genhtml extra options>])
+#
+#   Runs `lcov` and `genthml` commands to generate coverage report.
+#   This is an internal function, which is used in `ctest_ext_coverage`.
+#
+#   The `lcov` command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
+#   The binaries must be built with `gcov` coverage support.
+#   The `lcov` command must be run after all tests.
+#
+#   `CTEST_LCOV_EXECUTABLE` variable must be defined and must point to `lcov` command.
+#   `CTEST_GENHTML_EXECUTABLE` variable must be defined and must point to `genhtml` command.
+#
+
+function(run_lcov)
+    set(options "")
+    set(oneValueArgs "OUTPUT_HTML_DIR")
+    set(multiValueArgs "OPTIONS" "GENTHML_OPTIONS" "EXTRACT" "REMOVE")
+    cmake_parse_arguments(LCOV "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    check_vars_exist(CTEST_LCOV_EXECUTABLE CTEST_GENHTML_EXECUTABLE)
+
+    if(NOT DEFINED LCOV_OUTPUT_HTML_DIR)
+        check_vars_def(CTEST_LCOV_REPORT_DIR)
+        set(LCOV_OUTPUT_HTML_DIR "${CTEST_LCOV_REPORT_DIR}")
+    endif()
+
+    if(EXISTS "${LCOV_OUTPUT_HTML_DIR}")
+        file(REMOVE_RECURSE "${LCOV_OUTPUT_HTML_DIR}")
+    endif()
+
+    set(LCOVR_COMMAND_LINE
+        "${CTEST_LCOV_EXECUTABLE}" "--capture" "--no-external"
+        "--directory" "${CTEST_BINARY_DIRECTORY}"
+        "--base-directory" "${CTEST_SOURCE_DIRECTORY}"
+        "--output-file" "lcov_coverage_1.info"
+        ${LCOV_OPTIONS}
+        ${CTEST_LCOV_EXTRA_FLAGS})
+    ctest_ext_info("Generate lcov report : ${LCOVR_COMMAND_LINE}")
+    execute_process(COMMAND ${LCOVR_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+
+    foreach(e ${LCOV_EXTRACT})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy "lcov_coverage_1.info" "lcov_coverage_2.info"
+            WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+
+        set(LCOVR_COMMAND_LINE
+            "${CTEST_LCOV_EXECUTABLE}"
+            "--extract" "lcov_coverage_2.info" "${e}"
+            "--output-file" "lcov_coverage_1.info"
+            ${LCOV_OPTIONS}
+            ${CTEST_LCOV_EXTRA_FLAGS})
+        ctest_ext_info("Extract pattern from lcov report : ${LCOVR_COMMAND_LINE}")
+        execute_process(COMMAND ${LCOVR_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+    endforeach()
+
+    foreach(r ${LCOV_REMOVE})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E copy "lcov_coverage_1.info" "lcov_coverage_2.info"
+            WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+
+        set(LCOVR_COMMAND_LINE
+            "${CTEST_LCOV_EXECUTABLE}"
+            "--remove" "lcov_coverage_2.info" "${r}"
+            "--output-file" "lcov_coverage_1.info"
+            ${LCOV_OPTIONS}
+            ${CTEST_LCOV_EXTRA_FLAGS})
+        ctest_ext_info("Remove pattern from lcov report : ${LCOVR_COMMAND_LINE}")
+        execute_process(COMMAND ${LCOVR_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+    endforeach()
+
+    set(GENHTML_COMMAND_LINE
+        "${CTEST_GENHTML_EXECUTABLE}" "lcov_coverage_1.info"
+        "--output-directory" "${LCOV_OUTPUT_HTML_DIR}"
+        ${LCOV_GENTHML_OPTIONS}
+        ${CTEST_GENHTML_EXTRA_FLAGS})
+    ctest_ext_info("Convert lcov report to html : ${GENHTML_COMMAND_LINE}")
+    execute_process(COMMAND ${GENHTML_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
 endfunction()
 
 ##################################################################################
@@ -432,6 +518,7 @@ function(ctest_ext_dump_notes)
     ctest_ext_note("CTEST_WITH_MEMCHECK                   : ${CTEST_WITH_MEMCHECK}")
     ctest_ext_note("CTEST_WITH_COVERAGE                   : ${CTEST_WITH_COVERAGE}")
     ctest_ext_note("CTEST_WITH_GCOVR                      : ${CTEST_WITH_GCOVR}")
+    ctest_ext_note("CTEST_WITH_LCOV                       : ${CTEST_WITH_LCOV}")
     ctest_ext_note("CTEST_WITH_SUBMIT                     : ${CTEST_WITH_SUBMIT}")
     ctest_ext_note("")
 
@@ -453,6 +540,13 @@ function(ctest_ext_dump_notes)
     ctest_ext_note("CTEST_GCOVR_EXECUTABLE                : ${CTEST_GCOVR_EXECUTABLE}")
     ctest_ext_note("CTEST_GCOVR_EXTRA_FLAGS               : ${CTEST_GCOVR_EXTRA_FLAGS}")
     ctest_ext_note("CTEST_GCOVR_REPORT_DIR                : ${CTEST_GCOVR_REPORT_DIR}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_LCOV_EXECUTABLE                 : ${CTEST_LCOV_EXECUTABLE}")
+    ctest_ext_note("CTEST_LCOV_EXTRA_FLAGS                : ${CTEST_LCOV_EXTRA_FLAGS}")
+    ctest_ext_note("CTEST_GENHTML_EXECUTABLE              : ${CTEST_GENHTML_EXECUTABLE}")
+    ctest_ext_note("CTEST_GENTHML_EXTRA_FLAGS             : ${CTEST_GENTHML_EXTRA_FLAGS}")
+    ctest_ext_note("CTEST_LCOV_REPORT_DIR                 : ${CTEST_LCOV_REPORT_DIR}")
     ctest_ext_note("")
 
     ctest_ext_note("CTEST_NOTES_FILES                     : ${CTEST_NOTES_FILES}")
@@ -514,6 +608,20 @@ macro(ctest_ext_init)
         find_program(CTEST_GCOVR_EXECUTABLE NAMES gcovr)
         if(CTEST_GCOVR_EXECUTABLE)
             ctest_ext_info("Found gcovr : ${CTEST_GCOVR_EXECUTABLE}")
+        endif()
+    endif()
+
+    if(NOT DEFINED CTEST_LCOV_EXECUTABLE)
+        find_program(CTEST_LCOV_EXECUTABLE NAMES lcov)
+        if(CTEST_LCOV_EXECUTABLE)
+            ctest_ext_info("Found lcov : ${CTEST_LCOV_EXECUTABLE}")
+        endif()
+    endif()
+
+    if(NOT DEFINED CTEST_GENHTML_EXECUTABLE)
+        find_program(CTEST_GENHTML_EXECUTABLE NAMES genhtml)
+        if(CTEST_GENHTML_EXECUTABLE)
+            ctest_ext_info("Found genhtml : ${CTEST_GENHTML_EXECUTABLE}")
         endif()
     endif()
 
@@ -596,9 +704,11 @@ macro(ctest_ext_start)
     set_ifndef(CTEST_TEST_TIMEOUT               600)
     set_ifndef(CTEST_WITH_COVERAGE              FALSE)
     set_ifndef(CTEST_WITH_GCOVR                 FALSE)
+    set_ifndef(CTEST_WITH_LCOV                  FALSE)
     set_ifndef(CTEST_WITH_MEMCHECK              FALSE)
     set_ifndef(CTEST_WITH_SUBMIT                FALSE)
-    set_ifndef(CTEST_GCOVR_REPORT_DIR           "${CTEST_BINARY_DIRECTORY}/coverage")
+    set_ifndef(CTEST_GCOVR_REPORT_DIR           "${CTEST_BINARY_DIRECTORY}/gcovr")
+    set_ifndef(CTEST_LCOV_REPORT_DIR            "${CTEST_BINARY_DIRECTORY}/lcov")
 
     list(APPEND CTEST_NOTES_FILES   "${CTEST_NOTES_LOG_FILE}")
     list(APPEND CTEST_UPLOAD_FILES  "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
@@ -733,15 +843,15 @@ endfunction()
 ##################################################################################
 
 #
-# ctest_ext_coverage([GCOVR_OPTIONS <options for run_gcovr>] [CTEST_OPTIONS <options for ctest_coverage>])
+# ctest_ext_coverage([GCOVR_OPTIONS <options for run_gcovr>] [LCOV_OPTIONS <options for run_lcov>] [CTEST_OPTIONS <options for ctest_coverage>])
 #
 #   Collects coverage reports.
-#   The function passes own arguments to `run_gcovr` and `ctest_coverage` as is.
+#   The function passes own arguments to `run_gcovr`, `run_lcov` and `ctest_coverage` as is.
 #
 function(ctest_ext_coverage)
     set(options "")
     set(oneValueArgs "")
-    set(multiValueArgs "GCOVR_OPTIONS" "CTEST_OPTIONS")
+    set(multiValueArgs "GCOVR_OPTIONS" "LCOV_OPTIONS" "CTEST_OPTIONS")
     cmake_parse_arguments(COVERAGE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(CTEST_WITH_TESTS AND CTEST_STAGE MATCHES "Coverage")
@@ -752,6 +862,15 @@ function(ctest_ext_coverage)
 
             ctest_ext_info("Parameters : ${COVERAGE_GCOVR_OPTIONS}")
             run_gcovr(${COVERAGE_GCOVR_OPTIONS})
+        endif()
+
+        if(CTEST_WITH_LCOV)
+            ctest_ext_info("==========================================================================")
+            ctest_ext_info("Generate lcov coverage report")
+            ctest_ext_info("==========================================================================")
+
+            ctest_ext_info("Parameters : ${COVERAGE_LCOV_OPTIONS}")
+            run_lcov(${COVERAGE_LCOV_OPTIONS})
         endif()
 
         if(CTEST_WITH_COVERAGE)

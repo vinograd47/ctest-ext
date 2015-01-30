@@ -49,7 +49,10 @@ The function will pass its arguments to `ctest_test` as is.
 
 Collects coverage reports (in gcovr or/and in CTest format).
 
-    ctest_ext_coverage([GCOVR_OPTIONS <options for run_gcovr>] [CTEST_OPTIONS <options for ctest_coverage>])
+    ctest_ext_coverage(
+        [GCOVR_OPTIONS <options for run_gcovr>]
+        [LCOV_OPTIONS <options for run_lcov>]
+        [CTEST_OPTIONS <options for ctest_coverage>])
 
 The function passes own arguments to `run_gcovr` and `ctest_coverage` as is.
 
@@ -182,7 +185,10 @@ This is an internal function, which is used by `ctest_ext_start`.
 
 Runs `gcovr` command to generate coverage report.
 
-    run_gcovr([XML] [HTML] [VERBOSE] [OUTPUT_BASE_NAME <output_dir>] [REPORT_BASE_DIR <report_name>] [OPTIONS <option1> <option2> ...])
+    run_gcovr([XML] [HTML] [VERBOSE]
+        [OUTPUT_BASE_NAME <output_dir>]
+        [REPORT_BASE_DIR <report_name>]
+        [OPTIONS <option1> <option2> ...])
 
 This is an internal function, which is used in `ctest_ext_coverage`.
 
@@ -203,8 +209,28 @@ Coverage reports will be generated in:
 
 `REPORT_BASE_DIR` specifies base directory for output reports.
 If not specified `CTEST_GCOVR_REPORT_DIR` variable is used,
-which by default is equal to `${CTEST_BINARY_DIRECTORY}/coverage`
+which by default is equal to `${CTEST_BINARY_DIRECTORY}/gcovr`
 
 `OPTIONS` specifies additional options for `gcovr` command line.
 
 `CTEST_GCOVR_EXECUTABLE` variable must be defined and must point to `gcovr` command.
+
+### run_lcov
+
+Runs `lcov` and `genthml` commands to generate coverage report.
+
+    run_lcov([OUTPUT_HTML_DIR <output_html_dir>]
+             [EXTRACT] <extract patterns>
+             [REMOVE] <remove patterns>
+             [OPTIONS <lcov extra options>] [GENTHML_OPTIONS <genhtml extra options>])
+
+This is an internal function, which is used in `ctest_ext_coverage`.
+
+The `lcov` command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
+The binaries must be built with `gcov` coverage support.
+The `lcov` command must be run after all tests.
+
+`EXTRACT` and `REMOVE` options can be used to filter out unnecessary files from final report.
+
+`CTEST_LCOV_EXECUTABLE` variable must be defined and must point to `lcov` command.
+`CTEST_GENHTML_EXECUTABLE` variable must be defined and must point to `genhtml` command.

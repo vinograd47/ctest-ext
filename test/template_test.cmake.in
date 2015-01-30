@@ -30,14 +30,18 @@ set_ifndef(CTEST_WITH_TESTS             TRUE)
 set_ifndef(CTEST_WITH_COVERAGE          FALSE)
 
 if(CTEST_MODEL MATCHES "Nightly")
-    if(CTEST_GCOVR_EXECUTABLE AND EXISTS "${CTEST_MEMORYCHECK_COMMAND}")
+    if(CTEST_GCOVR_EXECUTABLE AND EXISTS "${CTEST_GCOVR_EXECUTABLE}")
         set_ifndef(CTEST_WITH_GCOVR     TRUE)
+    endif()
+    if(CTEST_LCOV_EXECUTABLE AND EXISTS "${CTEST_LCOV_EXECUTABLE}")
+        set_ifndef(CTEST_WITH_LCOV      TRUE)
     endif()
     if(CTEST_MEMORYCHECK_COMMAND AND EXISTS "${CTEST_MEMORYCHECK_COMMAND}")
         set_ifndef(CTEST_WITH_MEMCHECK  TRUE)
     endif()
 else()
     set_ifndef(CTEST_WITH_GCOVR         FALSE)
+    set_ifndef(CTEST_WITH_LCOV          FALSE)
     set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
 endif()
 
@@ -85,7 +89,8 @@ ctest_ext_test()
 #
 
 ctest_ext_coverage(
-    GCOVR_OPTIONS HTML VERBOSE OPTIONS "-f" ".*/main.cpp")
+    GCOVR_OPTIONS HTML OPTIONS "-f" ".*/main.cpp"
+    LCOV_OPTIONS REMOVE "template/gtest/*")
 
 #
 # MemCheck
