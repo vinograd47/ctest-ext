@@ -5,10 +5,10 @@ repo_url: https://github.com/jet47/ctest-ext
 
 pages:
 - ['index.md', 'Home']
-- ['usage/quick_start.md', 'Usage', 'Quick start']
-- ['usage/configuration.md', 'Usage', 'Configuration']
-- ['usage/commands.md', 'Usage', 'Commands']
-- ['usage/example.md', 'Usage', 'Example of project script']
+- ['usage/intro.md', 'Usage', 'Introduction']
+- ['usage/project_script.md', 'Usage', 'Create project testing script']
+- ['usage/run_test.md', 'Usage', 'Run project testing script']
+- ['usage/commands.md', 'Usage', 'CTest Ext Commands']
 - ['options/mandatory.md', 'Options', 'Mandatory testing options']
 - ['options/repository.md', 'Options', 'Repository settings']
 - ['options/testing.md', 'Options', 'Optional testing settings']

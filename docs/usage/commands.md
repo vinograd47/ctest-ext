@@ -1,4 +1,4 @@
-# Commands
+# CTest Ext Commands
 
 This section describes all commands provided by CTest Extension module.
 Those commands are supposed to be used in project's testing script.

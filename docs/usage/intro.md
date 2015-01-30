@@ -1,4 +1,8 @@
-# Configuration
+# Introduction
+
+The CTest Extension module is supposed to be used in a project's CTest script.
+Project developers provide the testing script (along with source code or separately),
+and testers use this script to perform project testing.
 
 The CTest Extension module uses **Target system** and **Testing model** notations to
 perform different tests, depending on target platform and user intention.
@@ -33,19 +37,3 @@ Example of such set:
 * *Performance* - collects benchmarking results.
 * *MemCheck* - performs dynamic analysis.
 * *Documentation* - builds documentation.
-
-## Configure the testing script
-
-The CTest Extension module can be configured in two ways:
-
-1. Set the required parameters before including the project's testing script:
-
-        set(CTEST_TARGET_SYSTEM "Linux-Ubuntu-14.04-x64")
-        set(CTEST_MODEL         "Performance")
-        include("~/Dashboards/project/project_test.cmake")
-
-2. Pass the options with CTest command line:
-
-        $ ctest -VV -S ~/Dashboards/project/project_test.cmake \
-            -DCTEST_TARGET_SYSTEM="Linux-Ubuntu-14.04-x64" \
-            -DCTEST_MODEL="Nightly"
