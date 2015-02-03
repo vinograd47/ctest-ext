@@ -28,6 +28,10 @@ Enable/disable CTest-based code coverage analysis.
 
 Enable/disable gcovr-based code coverage analysis.
 
+## CTEST_WITH_LCOV
+
+Enable/disable lcov-based code coverage analysis.
+
 ## CTEST_WITH_SUBMIT
 
 Enable/disable submission to remote server.
@@ -79,7 +83,29 @@ Extra options for the `gcovr` command.
 
 Output directory for `gcovr` reports.
 
-By default is equal to `${CTEST_BINARY_DIRECTORY}/coverage`.
+By default is equal to `${CTEST_BINARY_DIRECTORY}/gcovr`.
+
+## CTEST_LCOV_EXECUTABLE
+
+Path to `lcov` command line tool.
+
+## CTEST_LCOV_EXTRA_FLAGS
+
+Extra options for the `lcov` command.
+
+## CTEST_GENHTML_EXECUTABLE
+
+Path to `genhtml` command line tool.
+
+## CTEST_GENTHML_EXTRA_FLAGS
+
+Extra options for the `genhtml` command.
+
+## CTEST_LCOV_REPORT_DIR
+
+Output directory for `lcov` reports.
+
+By default is equal to `${CTEST_BINARY_DIRECTORY}/lcov`.
 
 ## CTEST_NOTES_FILES
 
