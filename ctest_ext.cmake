@@ -28,18 +28,18 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.3)
+set(CTEST_EXT_VERSION  0.4)
 
 include(CMakeParseArguments)
 
 ##################################################################################
-# Check commands
+# Variables management commands
 ##################################################################################
 
 #
 # set_ifndef(<variable> <value>)
 #
-#   Sets <variable> to the value <value>, only if the <variable> is not defined.
+#   Sets `<variable>` to the `<value>`, only if the `<variable>` is not defined.
 #
 function(set_ifndef VAR)
     if(NOT DEFINED ${VAR})
@@ -92,7 +92,7 @@ endfunction()
 #
 # check_if_matches(<variable> <regexp1> <regexp2> ...)
 #
-#   Checks that <variable> matches one of the regular expression from the input list.
+#   Checks that `<variable>` matches one of the regular expression from the input list.
 #
 function(check_if_matches VAR)
     check_vars_def(${VAR})
@@ -110,13 +110,120 @@ function(check_if_matches VAR)
     endif()
 endfunction()
 
+##################################################################################
+# Logging commands
+##################################################################################
+
 #
 # ctest_ext_info(<message>)
 #
-#   Prints <message> to standard output with [CTEST EXT INFO] prefix for better visibility.
+#   Prints `<message>` to standard output with `[CTEST EXT INFO]` prefix for better visibility.
 #
 function(ctest_ext_info)
     message("[CTEST EXT INFO] ${ARGN}")
+endfunction()
+
+#
+# ctest_ext_note(<message>)
+#
+#   Writes `<message>` both to console and to note file.
+#   The function appends `[CTEST EXT NOTE]` prefix to console output for better visibility.
+#   The note file is used in submit command.
+#
+#   The command will be available after `ctest_ext_start` call.
+#
+#   `CTEST_NOTES_LOG_FILE` variable must be defined.
+#
+function(ctest_ext_note)
+    check_vars_def(CTEST_NOTES_LOG_FILE)
+
+    message("[CTEST EXT NOTE] ${ARGN}")
+    file(APPEND "${CTEST_NOTES_LOG_FILE}" "${ARGN}\n")
+endfunction()
+
+#
+# ctest_ext_dump_notes()
+#
+#   Dumps all CTest Ext launch options to note file.
+#   This is an internal function, which is used by `ctest_ext_start`.
+#
+function(ctest_ext_dump_notes)
+    ctest_ext_info("==========================================================================")
+    ctest_ext_info("CTest configuration information")
+    ctest_ext_info("==========================================================================")
+
+    get_git_repo_info("${CTEST_SOURCE_DIRECTORY}" CTEST_CURRENT_BRANCH CTEST_CURRENT_REVISION)
+
+    ctest_ext_note("Configuration for CTest submission:")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_EXT_VERSION                     : ${CTEST_EXT_VERSION}")
+    ctest_ext_note("CTEST_PROJECT_NAME                    : ${CTEST_PROJECT_NAME}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_TARGET_SYSTEM                   : ${CTEST_TARGET_SYSTEM}")
+    ctest_ext_note("CTEST_MODEL                           : ${CTEST_MODEL}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_SITE                            : ${CTEST_SITE}")
+    ctest_ext_note("CTEST_BUILD_NAME                      : ${CTEST_BUILD_NAME}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_DASHBOARD_ROOT                  : ${CTEST_DASHBOARD_ROOT}")
+    ctest_ext_note("CTEST_SOURCE_DIRECTORY                : ${CTEST_SOURCE_DIRECTORY}")
+    ctest_ext_note("CTEST_BINARY_DIRECTORY                : ${CTEST_BINARY_DIRECTORY}")
+    ctest_ext_note("CTEST_NOTES_LOG_FILE                  : ${CTEST_NOTES_LOG_FILE}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_WITH_UPDATE                     : ${CTEST_WITH_UPDATE}")
+    ctest_ext_note("CTEST_GIT_COMMAND                     : ${CTEST_GIT_COMMAND}")
+    ctest_ext_note("CTEST_PROJECT_GIT_URL                 : ${CTEST_PROJECT_GIT_URL}")
+    ctest_ext_note("CTEST_PROJECT_GIT_BRANCH              : ${CTEST_PROJECT_GIT_BRANCH}")
+    ctest_ext_note("CTEST_CURRENT_BRANCH                  : ${CTEST_CURRENT_BRANCH}")
+    ctest_ext_note("CTEST_CURRENT_REVISION                : ${CTEST_CURRENT_REVISION}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_UPDATE_CMAKE_CACHE              : ${CTEST_UPDATE_CMAKE_CACHE}")
+    ctest_ext_note("CTEST_EMPTY_BINARY_DIRECTORY          : ${CTEST_EMPTY_BINARY_DIRECTORY}")
+    ctest_ext_note("CTEST_WITH_TESTS                      : ${CTEST_WITH_TESTS}")
+    ctest_ext_note("CTEST_TEST_TIMEOUT                    : ${CTEST_TEST_TIMEOUT}")
+    ctest_ext_note("CTEST_WITH_MEMCHECK                   : ${CTEST_WITH_MEMCHECK}")
+    ctest_ext_note("CTEST_WITH_COVERAGE                   : ${CTEST_WITH_COVERAGE}")
+    ctest_ext_note("CTEST_WITH_GCOVR                      : ${CTEST_WITH_GCOVR}")
+    ctest_ext_note("CTEST_WITH_LCOV                       : ${CTEST_WITH_LCOV}")
+    ctest_ext_note("CTEST_WITH_SUBMIT                     : ${CTEST_WITH_SUBMIT}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_CMAKE_GENERATOR                 : ${CTEST_CMAKE_GENERATOR}")
+    ctest_ext_note("CTEST_CONFIGURATION_TYPE              : ${CTEST_CONFIGURATION_TYPE}")
+    ctest_ext_note("CTEST_CMAKE_OPTIONS                   : ${CTEST_CMAKE_OPTIONS}")
+    ctest_ext_note("CTEST_BUILD_FLAGS                     : ${CTEST_BUILD_FLAGS}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_MEMORYCHECK_COMMAND             : ${CTEST_MEMORYCHECK_COMMAND}")
+    ctest_ext_note("CTEST_MEMORYCHECK_SUPPRESSIONS_FILE   : ${CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
+    ctest_ext_note("CTEST_MEMORYCHECK_COMMAND_OPTIONS     : ${CTEST_MEMORYCHECK_COMMAND_OPTIONS}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_COVERAGE_COMMAND                : ${CTEST_COVERAGE_COMMAND}")
+    ctest_ext_note("CTEST_COVERAGE_EXTRA_FLAGS            : ${CTEST_COVERAGE_EXTRA_FLAGS}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_GCOVR_EXECUTABLE                : ${CTEST_GCOVR_EXECUTABLE}")
+    ctest_ext_note("CTEST_GCOVR_EXTRA_FLAGS               : ${CTEST_GCOVR_EXTRA_FLAGS}")
+    ctest_ext_note("CTEST_GCOVR_REPORT_DIR                : ${CTEST_GCOVR_REPORT_DIR}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_LCOV_EXECUTABLE                 : ${CTEST_LCOV_EXECUTABLE}")
+    ctest_ext_note("CTEST_LCOV_EXTRA_FLAGS                : ${CTEST_LCOV_EXTRA_FLAGS}")
+    ctest_ext_note("CTEST_GENHTML_EXECUTABLE              : ${CTEST_GENHTML_EXECUTABLE}")
+    ctest_ext_note("CTEST_GENTHML_EXTRA_FLAGS             : ${CTEST_GENTHML_EXTRA_FLAGS}")
+    ctest_ext_note("CTEST_LCOV_REPORT_DIR                 : ${CTEST_LCOV_REPORT_DIR}")
+    ctest_ext_note("")
+
+    ctest_ext_note("CTEST_NOTES_FILES                     : ${CTEST_NOTES_FILES}")
+    ctest_ext_note("CTEST_UPLOAD_FILES                    : ${CTEST_UPLOAD_FILES}")
+    ctest_ext_note("")
 endfunction()
 
 ##################################################################################
@@ -126,7 +233,7 @@ endfunction()
 #
 # create_tmp_dir(<output_variable> [BASE_DIR <path to base temp directory>])
 #
-#   Creates temporary directory and returns path to it via <output_variable>.
+#   Creates temporary directory and returns path to it via `<output_variable>`.
 #
 #   `BASE_DIR` can be used to specify location for base temporary path,
 #   if it is not defined `TEMP`, `TMP` or `TMPDIR` environment variables will be used.
@@ -496,113 +603,6 @@ function(run_lcov)
 endfunction()
 
 ##################################################################################
-# CTest Logging commands
-##################################################################################
-
-#
-# ctest_ext_note(<message>)
-#
-#   Writes <message> both to console and to note file.
-#   The function appends "[CTEST EXT NOTE]" prefix to console output for better visibility.
-#   The note file is used in submit command.
-#
-#   The command will be available after `ctest_ext_start` call.
-#
-#   `CTEST_NOTES_LOG_FILE` variable must be defined.
-#
-function(ctest_ext_note)
-    check_vars_def(CTEST_NOTES_LOG_FILE)
-
-    message("[CTEST EXT NOTE] ${ARGN}")
-    file(APPEND "${CTEST_NOTES_LOG_FILE}" "${ARGN}\n")
-endfunction()
-
-#
-# ctest_ext_dump_notes()
-#
-#   Dumps all launch options to note file.
-#   This is an internal function, which is used by `ctest_ext_start`.
-#
-function(ctest_ext_dump_notes)
-    ctest_ext_info("==========================================================================")
-    ctest_ext_info("CTest configuration information")
-    ctest_ext_info("==========================================================================")
-
-    get_git_repo_info("${CTEST_SOURCE_DIRECTORY}" CTEST_CURRENT_BRANCH CTEST_CURRENT_REVISION)
-
-    ctest_ext_note("Configuration for CTest submission:")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_EXT_VERSION                     : ${CTEST_EXT_VERSION}")
-    ctest_ext_note("CTEST_PROJECT_NAME                    : ${CTEST_PROJECT_NAME}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_TARGET_SYSTEM                   : ${CTEST_TARGET_SYSTEM}")
-    ctest_ext_note("CTEST_MODEL                           : ${CTEST_MODEL}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_SITE                            : ${CTEST_SITE}")
-    ctest_ext_note("CTEST_BUILD_NAME                      : ${CTEST_BUILD_NAME}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_DASHBOARD_ROOT                  : ${CTEST_DASHBOARD_ROOT}")
-    ctest_ext_note("CTEST_SOURCE_DIRECTORY                : ${CTEST_SOURCE_DIRECTORY}")
-    ctest_ext_note("CTEST_BINARY_DIRECTORY                : ${CTEST_BINARY_DIRECTORY}")
-    ctest_ext_note("CTEST_NOTES_LOG_FILE                  : ${CTEST_NOTES_LOG_FILE}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_WITH_UPDATE                     : ${CTEST_WITH_UPDATE}")
-    ctest_ext_note("CTEST_GIT_COMMAND                     : ${CTEST_GIT_COMMAND}")
-    ctest_ext_note("CTEST_PROJECT_GIT_URL                 : ${CTEST_PROJECT_GIT_URL}")
-    ctest_ext_note("CTEST_PROJECT_GIT_BRANCH              : ${CTEST_PROJECT_GIT_BRANCH}")
-    ctest_ext_note("CTEST_CURRENT_BRANCH                  : ${CTEST_CURRENT_BRANCH}")
-    ctest_ext_note("CTEST_CURRENT_REVISION                : ${CTEST_CURRENT_REVISION}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_UPDATE_CMAKE_CACHE              : ${CTEST_UPDATE_CMAKE_CACHE}")
-    ctest_ext_note("CTEST_EMPTY_BINARY_DIRECTORY          : ${CTEST_EMPTY_BINARY_DIRECTORY}")
-    ctest_ext_note("CTEST_WITH_TESTS                      : ${CTEST_WITH_TESTS}")
-    ctest_ext_note("CTEST_TEST_TIMEOUT                    : ${CTEST_TEST_TIMEOUT}")
-    ctest_ext_note("CTEST_WITH_MEMCHECK                   : ${CTEST_WITH_MEMCHECK}")
-    ctest_ext_note("CTEST_WITH_COVERAGE                   : ${CTEST_WITH_COVERAGE}")
-    ctest_ext_note("CTEST_WITH_GCOVR                      : ${CTEST_WITH_GCOVR}")
-    ctest_ext_note("CTEST_WITH_LCOV                       : ${CTEST_WITH_LCOV}")
-    ctest_ext_note("CTEST_WITH_SUBMIT                     : ${CTEST_WITH_SUBMIT}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_CMAKE_GENERATOR                 : ${CTEST_CMAKE_GENERATOR}")
-    ctest_ext_note("CTEST_CONFIGURATION_TYPE              : ${CTEST_CONFIGURATION_TYPE}")
-    ctest_ext_note("CTEST_CMAKE_OPTIONS                   : ${CTEST_CMAKE_OPTIONS}")
-    ctest_ext_note("CTEST_BUILD_FLAGS                     : ${CTEST_BUILD_FLAGS}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_MEMORYCHECK_COMMAND             : ${CTEST_MEMORYCHECK_COMMAND}")
-    ctest_ext_note("CTEST_MEMORYCHECK_SUPPRESSIONS_FILE   : ${CTEST_MEMORYCHECK_SUPPRESSIONS_FILE}")
-    ctest_ext_note("CTEST_MEMORYCHECK_COMMAND_OPTIONS     : ${CTEST_MEMORYCHECK_COMMAND_OPTIONS}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_COVERAGE_COMMAND                : ${CTEST_COVERAGE_COMMAND}")
-    ctest_ext_note("CTEST_COVERAGE_EXTRA_FLAGS            : ${CTEST_COVERAGE_EXTRA_FLAGS}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_GCOVR_EXECUTABLE                : ${CTEST_GCOVR_EXECUTABLE}")
-    ctest_ext_note("CTEST_GCOVR_EXTRA_FLAGS               : ${CTEST_GCOVR_EXTRA_FLAGS}")
-    ctest_ext_note("CTEST_GCOVR_REPORT_DIR                : ${CTEST_GCOVR_REPORT_DIR}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_LCOV_EXECUTABLE                 : ${CTEST_LCOV_EXECUTABLE}")
-    ctest_ext_note("CTEST_LCOV_EXTRA_FLAGS                : ${CTEST_LCOV_EXTRA_FLAGS}")
-    ctest_ext_note("CTEST_GENHTML_EXECUTABLE              : ${CTEST_GENHTML_EXECUTABLE}")
-    ctest_ext_note("CTEST_GENTHML_EXTRA_FLAGS             : ${CTEST_GENTHML_EXTRA_FLAGS}")
-    ctest_ext_note("CTEST_LCOV_REPORT_DIR                 : ${CTEST_LCOV_REPORT_DIR}")
-    ctest_ext_note("")
-
-    ctest_ext_note("CTEST_NOTES_FILES                     : ${CTEST_NOTES_FILES}")
-    ctest_ext_note("CTEST_UPLOAD_FILES                    : ${CTEST_UPLOAD_FILES}")
-    ctest_ext_note("")
-endfunction()
-
-##################################################################################
 # CTest Ext Initialize
 ##################################################################################
 
@@ -930,7 +930,7 @@ function(ctest_ext_test)
         ctest_ext_info("Test")
         ctest_ext_info("==========================================================================")
 
-        ctest_ext_info("Parameters : ${ARGN}")
+        ctest_ext_info("ctest_test parameters : ${ARGN}")
         ctest_test(${ARGN})
     endif()
 endfunction()
@@ -1000,7 +1000,7 @@ function(ctest_ext_memcheck)
         ctest_ext_info("MemCheck")
         ctest_ext_info("==========================================================================")
 
-        ctest_ext_info("Parameters : ${ARGN}")
+        ctest_ext_info("ctest_memcheck parameters : ${ARGN}")
         ctest_memcheck(${ARGN})
     endif()
 endfunction()
