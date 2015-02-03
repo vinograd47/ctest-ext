@@ -138,11 +138,9 @@ using provided **Target system** and **Testing model** notations.
 
     if(CTEST_MODEL MATCHES "Nightly")
         set_ifndef(CTEST_WITH_COVERAGE      TRUE)
-        set_ifndef(CTEST_WITH_GCOVR         TRUE)
         set_ifndef(CTEST_WITH_MEMCHECK      TRUE)
     else()
         set_ifndef(CTEST_WITH_COVERAGE      FALSE)
-        set_ifndef(CTEST_WITH_GCOVR         FALSE)
         set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
     endif()
 
@@ -171,11 +169,7 @@ using provided **Target system** and **Testing model** notations.
 
     add_cmake_cache_entry("ENABLE_CTEST" "ON")
 
-    if(CTEST_MODEL MATCHES "Nightly")
-        add_cmake_cache_entry("ENABLE_CPPCHECK" "ON")
-    endif()
-
-    if(CTEST_WITH_COVERAGE OR CTEST_WITH_GCOVR)
+    if(CTEST_WITH_COVERAGE)
         add_cmake_cache_entry("ENABLE_COVERAGE" "ON")
     else()
         add_cmake_cache_entry("ENABLE_COVERAGE" "OFF")
