@@ -86,8 +86,8 @@ ctest_ext_test()
 #
 
 ctest_ext_coverage(
-    GCOVR_OPTIONS HTML OPTIONS "-f" ".*/main.cpp"
-    LCOV_OPTIONS REMOVE "template/gtest/*")
+    GCOVR HTML FILTER ".*/main.cpp"
+    LCOV REMOVE "template/gtest/*")
 
 #
 # MemCheck

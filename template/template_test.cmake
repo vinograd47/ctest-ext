@@ -86,7 +86,7 @@ ctest_ext_test(EXCLUDE "Test3")
 #
 
 ctest_ext_coverage(
-    GCOVR_OPTIONS HTML VERBOSE OPTIONS "-f" ".*/main.cpp")
+    GCOVR HTML VERBOSE FILTER ".*/main.cpp")
 
 #
 # MemCheck

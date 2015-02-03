@@ -50,9 +50,9 @@ The function will pass its arguments to `ctest_test` as is.
 Collects coverage reports (in gcovr or/and in CTest format).
 
     ctest_ext_coverage(
-        [GCOVR_OPTIONS <options for run_gcovr>]
-        [LCOV_OPTIONS <options for run_lcov>]
-        [CTEST_OPTIONS <options for ctest_coverage>])
+        [GCOVR <options for run_gcovr>]
+        [LCOV <options for run_lcov>]
+        [CTEST <options for ctest_coverage>])
 
 The function passes own arguments to `run_gcovr` and `ctest_coverage` as is.
 

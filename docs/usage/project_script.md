@@ -223,7 +223,7 @@ Now we can run tests, calculate coverage, perform dynamic analysis.
         ctest_ext_test(EXCLUDE_LABEL "Light")
     endif()
 
-    ctest_ext_coverage(GCOVR_OPTIONS XML HTML VERBOSE)
+    ctest_ext_coverage(CTEST LABELS "Module")
 
     ctest_ext_memcheck(INCLUDE_LABEL "Light")
 

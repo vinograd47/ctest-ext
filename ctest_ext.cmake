@@ -843,7 +843,7 @@ endfunction()
 ##################################################################################
 
 #
-# ctest_ext_coverage([GCOVR_OPTIONS <options for run_gcovr>] [LCOV_OPTIONS <options for run_lcov>] [CTEST_OPTIONS <options for ctest_coverage>])
+# ctest_ext_coverage([GCOVR <options for run_gcovr>] [LCOV <options for run_lcov>] [CTEST <options for ctest_coverage>])
 #
 #   Collects coverage reports.
 #   The function passes own arguments to `run_gcovr`, `run_lcov` and `ctest_coverage` as is.
@@ -851,7 +851,7 @@ endfunction()
 function(ctest_ext_coverage)
     set(options "")
     set(oneValueArgs "")
-    set(multiValueArgs "GCOVR_OPTIONS" "LCOV_OPTIONS" "CTEST_OPTIONS")
+    set(multiValueArgs "GCOVR" "LCOV" "CTEST")
     cmake_parse_arguments(COVERAGE "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(CTEST_WITH_TESTS AND CTEST_STAGE MATCHES "Coverage")
@@ -860,8 +860,8 @@ function(ctest_ext_coverage)
             ctest_ext_info("Generate gcovr coverage report")
             ctest_ext_info("==========================================================================")
 
-            ctest_ext_info("Parameters : ${COVERAGE_GCOVR_OPTIONS}")
-            run_gcovr(${COVERAGE_GCOVR_OPTIONS})
+            ctest_ext_info("run_gcovr parameters : ${COVERAGE_GCOVR}")
+            run_gcovr(${COVERAGE_GCOVR})
         endif()
 
         if(CTEST_WITH_LCOV)
@@ -869,8 +869,8 @@ function(ctest_ext_coverage)
             ctest_ext_info("Generate lcov coverage report")
             ctest_ext_info("==========================================================================")
 
-            ctest_ext_info("Parameters : ${COVERAGE_LCOV_OPTIONS}")
-            run_lcov(${COVERAGE_LCOV_OPTIONS})
+            ctest_ext_info("run_lcov parameters : ${COVERAGE_LCOV}")
+            run_lcov(${COVERAGE_LCOV})
         endif()
 
         if(CTEST_WITH_COVERAGE)
@@ -880,8 +880,8 @@ function(ctest_ext_coverage)
             ctest_ext_info("Generate CTest coverage report")
             ctest_ext_info("==========================================================================")
 
-            ctest_ext_info("Parameters : ${COVERAGE_CTEST_OPTIONS}")
-            ctest_coverage(${COVERAGE_CTEST_OPTIONS})
+            ctest_ext_info("ctest_coverage parameters : ${COVERAGE_CTEST}")
+            ctest_coverage(${COVERAGE_CTEST})
         endif()
     endif()
 endfunction()
