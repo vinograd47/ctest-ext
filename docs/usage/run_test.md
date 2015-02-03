@@ -17,7 +17,7 @@ For CTest tool command line options please refer to
 
 ## Configure the testing script
 
-The CTest Extension module can be configured in two ways:
+The CTest Extension module can be configured in three ways:
 
 1. Create parent CMake script, which will define all required variables and then
    include the project's testing script:
@@ -31,3 +31,9 @@ The CTest Extension module can be configured in two ways:
         $ ctest -VV -S ~/Dashboards/project/project_test.cmake \
             -DCTEST_TARGET_SYSTEM="Linux-Ubuntu-14.04-x64" \
             -DCTEST_MODEL="Nightly"
+
+3. Set the options as environment variables prior to CTest call:
+
+        $ export CTEST_TARGET_SYSTEM="Linux-Ubuntu-14.04-x64"
+        $ export CTEST_MODEL="Nightly"
+        $ ctest -VV -S ~/Dashboards/project/project_test.cmake

@@ -132,6 +132,13 @@ Sets `<variable>` to the value `<value>`, only if the `<variable>` is not define
 
     set_ifndef(<variable> <value>)
 
+### set_from_env
+
+Sets `<variable>` to the value of environment variable with the same name,
+only if the `<variable>` is not defined and the environment variable is defined.
+
+    set_from_env(<variable1> <variable2> ...)
+
 ### check_vars_def
 
 Checks that all variables are defined.

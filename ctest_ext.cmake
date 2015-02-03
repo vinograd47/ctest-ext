@@ -48,6 +48,20 @@ function(set_ifndef VAR)
 endfunction()
 
 #
+# set_from_env(<variable1> <variable2> ...)
+#
+#   Sets `<variable>` to the value of environment variable with the same name,
+#   only if the `<variable>` is not defined and the environment variable is defined.
+#
+function(set_from_env)
+    foreach(var ${ARGN})
+        if(NOT DEFINED ${var} AND DEFINED ENV{${var}})
+            set(${var} "$ENV{${var}}" PARENT_SCOPE)
+        endif()
+    endforeach()
+endfunction()
+
+#
 # check_vars_def(<variable1> <variable2> ...)
 #
 #   Checks that all variables are defined.
@@ -572,12 +586,18 @@ macro(ctest_ext_init)
 
     # Dashboard settings
 
+    site_name(TMP_SITE_NAME)
+
+    set_from_env(
+        CTEST_TARGET_SYSTEM CTEST_MODEL
+        CTEST_SITE CTEST_BUILD_NAME
+        CTEST_DASHBOARD_ROOT CTEST_SOURCE_DIRECTORY CTEST_BINARY_DIRECTORY CTEST_NOTES_LOG_FILE
+        CTEST_WITH_UPDATE)
+
     set_ifndef(CTEST_TARGET_SYSTEM      "${CMAKE_SYSTEM}-${CMAKE_SYSTEM_PROCESSOR}")
     set_ifndef(CTEST_MODEL              "Experimental")
 
-    if(NOT DEFINED CTEST_SITE)
-        site_name(CTEST_SITE)
-    endif()
+    set_ifndef(CTEST_SITE               "${TMP_SITE_NAME}")
     set_ifndef(CTEST_BUILD_NAME         "${CTEST_TARGET_SYSTEM}-${CTEST_MODEL}")
 
     set_ifndef(CTEST_DASHBOARD_ROOT     "${CTEST_SCRIPT_DIRECTORY}/${CTEST_TARGET_SYSTEM}/${CTEST_MODEL}")
@@ -588,6 +608,11 @@ macro(ctest_ext_init)
     set_ifndef(CTEST_WITH_UPDATE        FALSE)
 
     # Tools
+
+    set_from_env(
+        CTEST_GIT_COMMAND
+        CTEST_COVERAGE_COMMAND CTEST_GCOVR_EXECUTABLE CTEST_LCOV_EXECUTABLE CTEST_GENHTML_EXECUTABLE
+        CTEST_MEMORYCHECK_COMMAND)
 
     if(NOT DEFINED CTEST_GIT_COMMAND)
         find_package(Git QUIET)
@@ -632,9 +657,13 @@ macro(ctest_ext_init)
         endif()
     endif()
 
+    # CMake options
+
+    set_from_env(CTEST_CMAKE_OPTIONS)
+
     # Stage
 
-    set_ifndef(CTEST_STAGE "${CTEST_SCRIPT_ARG}")
+    set(CTEST_STAGE "${CTEST_SCRIPT_ARG}")
     if(NOT CTEST_STAGE)
         set(CTEST_STAGE "Start;Configure;Build;Test;Coverage;MemCheck;Submit;Extra")
     endif()
@@ -695,25 +724,61 @@ endmacro()
 #   and initializes logging mechanism.
 #
 macro(ctest_ext_start)
-    set_ifndef(CTEST_CMAKE_GENERATOR            "Unix Makefiles")
-    set_ifndef(CTEST_CONFIGURATION_TYPE         "Debug")
+
+    # Testing options
+
+    set_from_env(
+        CTEST_UPDATE_CMAKE_CACHE CTEST_EMPTY_BINARY_DIRECTORY
+        CTEST_WITH_TESTS CTEST_TEST_TIMEOUT
+        CTEST_WITH_COVERAGE CTEST_WITH_GCOVR CTEST_WITH_LCOV
+        CTEST_WITH_MEMCHECK
+        CTEST_WITH_SUBMIT)
 
     set_ifndef(CTEST_UPDATE_CMAKE_CACHE         TRUE)
     set_ifndef(CTEST_EMPTY_BINARY_DIRECTORY     TRUE)
     set_ifndef(CTEST_WITH_TESTS                 TRUE)
     set_ifndef(CTEST_TEST_TIMEOUT               600)
-    set_ifndef(CTEST_WITH_COVERAGE              FALSE)
+    set_ifndef(CTEST_WITH_COVERAGE              TRUE)
     set_ifndef(CTEST_WITH_GCOVR                 FALSE)
     set_ifndef(CTEST_WITH_LCOV                  FALSE)
-    set_ifndef(CTEST_WITH_MEMCHECK              FALSE)
-    set_ifndef(CTEST_WITH_SUBMIT                FALSE)
+    set_ifndef(CTEST_WITH_MEMCHECK              TRUE)
+    set_ifndef(CTEST_WITH_SUBMIT                TRUE)
+
+    # Build options
+
+    set_from_env(
+        CTEST_CMAKE_GENERATOR CTEST_CONFIGURATION_TYPE
+        CTEST_BUILD_FLAGS)
+
+    set_ifndef(CTEST_CMAKE_GENERATOR            "Unix Makefiles")
+    set_ifndef(CTEST_CONFIGURATION_TYPE         "Debug")
+
+    # Memory check options
+
+    set_from_env(
+        CTEST_MEMORYCHECK_SUPPRESSIONS_FILE CTEST_MEMORYCHECK_COMMAND_OPTIONS)
+
+    # Coverage options
+
+    set_from_env(
+        CTEST_COVERAGE_EXTRA_FLAGS
+        CTEST_GCOVR_EXTRA_FLAGS
+        CTEST_LCOV_EXTRA_FLAGS CTEST_GENTHML_EXTRA_FLAGS)
+
     set_ifndef(CTEST_GCOVR_REPORT_DIR           "${CTEST_BINARY_DIRECTORY}/gcovr")
     set_ifndef(CTEST_LCOV_REPORT_DIR            "${CTEST_BINARY_DIRECTORY}/lcov")
+
+    # Extra submission files
 
     list(APPEND CTEST_NOTES_FILES   "${CTEST_NOTES_LOG_FILE}")
     list(APPEND CTEST_UPLOAD_FILES  "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
 
+    # Track
+
+    set_from_env(CTEST_TRACK)
     set_ifndef(CTEST_TRACK "${CTEST_MODEL}")
+
+    # Start
 
     ctest_ext_info("==========================================================================")
     ctest_ext_info("Start testing MODEL ${CTEST_MODEL} TRACK ${CTEST_TRACK}")
