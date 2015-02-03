@@ -1,3 +1,5 @@
+message("CTEST_FULL_OUTPUT")
+
 #
 # Include CTest Ext module
 #

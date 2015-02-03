@@ -581,8 +581,6 @@ endfunction()
 #   and performs project repository checkout/update if needed.
 #
 macro(ctest_ext_init)
-    # For CTest Ext module self-testing
-    message("CTEST_FULL_OUTPUT")
 
     # Dashboard settings
 
