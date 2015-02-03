@@ -192,10 +192,11 @@ This is an internal function, which is used by `ctest_ext_start`.
 
 Runs `gcovr` command to generate coverage report.
 
-    run_gcovr([XML] [HTML] [VERBOSE]
-        [OUTPUT_BASE_NAME <output_dir>]
-        [REPORT_BASE_DIR <report_name>]
-        [OPTIONS <option1> <option2> ...])
+    run_gcovr([XML] [HTML]
+              [FILTER <filter>]
+              [OUTPUT_BASE_NAME <output_dir>]
+              [REPORT_BASE_DIR <report_name>]
+              [OPTIONS <option1> <option2> ...])
 
 This is an internal function, which is used in `ctest_ext_coverage`.
 
@@ -210,7 +211,7 @@ Coverage reports will be generated in:
 
 `XML` and `HTML` options choose coverage report format (both can be specified).
 
-`VERBOSE` turns on `gcovr` verbose mode.
+`FILTER` options is used to specify file filter for report.
 
 `OUTPUT_BASE_NAME` specifies base name for output reports (`coverage` by default).
 

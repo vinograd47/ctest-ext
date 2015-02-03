@@ -297,7 +297,11 @@ endfunction()
 ##################################################################################
 
 #
-# run_gcovr([XML] [HTML] [VERBOSE] [OUTPUT_BASE_NAME <output_dir>] [REPORT_BASE_DIR <report_name>] [OPTIONS <option1> <option2> ...])
+# run_gcovr([XML] [HTML]
+#           [FILTER <filter>]
+#           [OUTPUT_BASE_NAME <output_dir>]
+#           [REPORT_BASE_DIR <report_name>]
+#           [OPTIONS <option1> <option2> ...])
 #
 #   Runs gcovr command to generate coverage report.
 #   This is an internal function, which is used in `ctest_ext_coverage`.
@@ -313,7 +317,7 @@ endfunction()
 #
 #   `XML` and `HTML` options choose coverage report format (both can be specified).
 #
-#   `VERBOSE` turns on gcovr verbose mode.
+#   `FILTER` options is used to specify file filter for report.
 #
 #   `OUTPUT_BASE_NAME` specifies base name for output reports ("coverage" by default).
 #
@@ -326,30 +330,26 @@ endfunction()
 #   `CTEST_GCOVR_EXECUTABLE` variable must be defined and must point to gcovr command.
 #
 function(run_gcovr)
-    set(options "XML" "HTML" "VERBOSE")
-    set(oneValueArgs "OUTPUT_BASE_NAME" "REPORT_BASE_DIR")
+    set(options "XML" "HTML")
+    set(oneValueArgs "FILTER" "OUTPUT_BASE_NAME" "REPORT_BASE_DIR")
     set(multiValueArgs "OPTIONS")
     cmake_parse_arguments(GCOVR "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     check_vars_exist(CTEST_GCOVR_EXECUTABLE)
 
     set_ifndef(GCOVR_OUTPUT_BASE_NAME "coverage")
+    set_ifndef(GCOVR_FILTER "${CTEST_SOURCE_DIRECTORY}/*")
     if(NOT DEFINED GCOVR_REPORT_BASE_DIR)
         check_vars_def(CTEST_GCOVR_REPORT_DIR)
         set(GCOVR_REPORT_BASE_DIR "${CTEST_GCOVR_REPORT_DIR}")
     endif()
 
-    list(APPEND GCOVR_COMMAND_LINE "${CTEST_GCOVR_EXECUTABLE}" "${CTEST_BINARY_DIRECTORY}")
-    list(APPEND GCOVR_COMMAND_LINE -r "${CTEST_SOURCE_DIRECTORY}")
-    if(GCOVR_VERBOSE)
-        list(APPEND GCOVR_COMMAND_LINE "--verbose")
-    endif()
-    if(GCOVR_OPTIONS)
-        list(APPEND GCOVR_COMMAND_LINE ${GCOVR_OPTIONS})
-    endif()
-    if(CTEST_GCOVR_EXTRA_FLAGS)
-        list(APPEND GCOVR_COMMAND_LINE ${CTEST_GCOVR_EXTRA_FLAGS})
-    endif()
+    set(GCOVR_BASE_COMMAND_LINE
+        "${CTEST_GCOVR_EXECUTABLE}" "${CTEST_BINARY_DIRECTORY}"
+        "-r" "${CTEST_SOURCE_DIRECTORY}"
+        "-f" "${GCOVR_FILTER}"
+        ${GCOVR_OPTIONS}
+        ${CTEST_GCOVR_EXTRA_FLAGS})
 
     if(GCOVR_XML)
         set(GCOVR_XML_DIR "${GCOVR_REPORT_BASE_DIR}/xml")
@@ -358,9 +358,13 @@ function(run_gcovr)
         endif()
         file(MAKE_DIRECTORY "${GCOVR_REPORT_BASE_DIR}" "${GCOVR_XML_DIR}")
 
-        ctest_ext_info("Generate XML gcovr report : ${GCOVR_COMMAND_LINE} --xml --xml-pretty -o ${GCOVR_OUTPUT_BASE_NAME}.xml")
-        execute_process(COMMAND ${GCOVR_COMMAND_LINE} --xml --xml-pretty -o "${GCOVR_OUTPUT_BASE_NAME}.xml"
-            WORKING_DIRECTORY "${GCOVR_XML_DIR}")
+        set(GCOVR_XML_COMMAND_LINE
+            ${GCOVR_BASE_COMMAND_LINE}
+            "--xml" "--xml-pretty"
+            "-o" "${GCOVR_OUTPUT_BASE_NAME}.xml")
+
+        ctest_ext_info("Generate XML gcovr report : ${GCOVR_XML_COMMAND_LINE}")
+        execute_process(COMMAND ${GCOVR_XML_COMMAND_LINE} WORKING_DIRECTORY "${GCOVR_XML_DIR}")
     endif()
 
     if(GCOVR_HTML)
@@ -370,9 +374,13 @@ function(run_gcovr)
         endif()
         file(MAKE_DIRECTORY "${GCOVR_REPORT_BASE_DIR}" "${GCOVR_HTML_DIR}")
 
-        ctest_ext_info("Generate HTML gcovr report : ${GCOVR_COMMAND_LINE} --html --html-details -o ${GCOVR_OUTPUT_BASE_NAME}.html")
-        execute_process(COMMAND ${GCOVR_COMMAND_LINE} --html --html-details -o "${GCOVR_OUTPUT_BASE_NAME}.html"
-            WORKING_DIRECTORY "${GCOVR_HTML_DIR}")
+        set(GCOVR_HTML_COMMAND_LINE
+            ${GCOVR_BASE_COMMAND_LINE}
+            "--html" "--html-details"
+            "-o" "${GCOVR_OUTPUT_BASE_NAME}.html")
+
+        ctest_ext_info("Generate HTML gcovr report : ${GCOVR_HTML_COMMAND_LINE}")
+        execute_process(COMMAND ${GCOVR_HTML_COMMAND_LINE} WORKING_DIRECTORY "${GCOVR_HTML_DIR}")
     endif()
 endfunction()
 
