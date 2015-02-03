@@ -389,13 +389,17 @@ endfunction()
 ##################################################################################
 
 #
-# run_lcov([OUTPUT_HTML_DIR <output_html_dir>]
+# run_lcov([BRANCH] [FUNCTION]
+#          [OUTPUT_HTML_DIR <output_html_dir>]
 #          [EXTRACT] <extract patterns>
 #          [REMOVE] <remove patterns>
-#          [OPTIONS <lcov extra options>] [GENTHML_OPTIONS <genhtml extra options>])
+#          [OPTIONS <lcov extra options>]
+#          [GENTHML_OPTIONS <genhtml extra options>])
 #
 #   Runs `lcov` and `genthml` commands to generate coverage report.
 #   This is an internal function, which is used in `ctest_ext_coverage`.
+#
+#   `BRANCH` and `FUNCTION` options turn on branch and function coverage analysis.
 #
 #   The `lcov` command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
 #   The binaries must be built with `gcov` coverage support.
@@ -406,9 +410,9 @@ endfunction()
 #
 
 function(run_lcov)
-    set(options "")
+    set(options "BRANCH" "FUNCTION")
     set(oneValueArgs "OUTPUT_HTML_DIR")
-    set(multiValueArgs "OPTIONS" "GENTHML_OPTIONS" "EXTRACT" "REMOVE")
+    set(multiValueArgs "EXTRACT" "REMOVE" "OPTIONS" "GENTHML_OPTIONS")
     cmake_parse_arguments(LCOV "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     check_vars_exist(CTEST_LCOV_EXECUTABLE CTEST_GENHTML_EXECUTABLE)
@@ -418,51 +422,73 @@ function(run_lcov)
         set(LCOV_OUTPUT_HTML_DIR "${CTEST_LCOV_REPORT_DIR}")
     endif()
 
+    list(APPEND LCOV_OPTIONS "--quiet")
+    if(LCOC_BRANCH)
+        list(APPEND LCOV_OPTIONS "--rc" "lcov_branch_coverage=1")
+        list(APPEND LCOV_GENTHML_OPTIONS "--branch-coverage")
+    else()
+        list(APPEND LCOV_OPTIONS "--rc" "lcov_branch_coverage=0")
+        list(APPEND LCOV_GENTHML_OPTIONS "--no-branch-coverage")
+    endif()
+    if(LCOV_FUNCTION)
+        list(APPEND LCOV_OPTIONS "--rc" "lcov_function_coverage=1")
+        list(APPEND LCOV_GENTHML_OPTIONS "--function-coverage" "--demangle-cpp")
+    else()
+        list(APPEND LCOV_OPTIONS "--rc" "lcov_function_coverage=0")
+        list(APPEND LCOV_GENTHML_OPTIONS "--no-function-coverage")
+    endif()
+
     if(EXISTS "${LCOV_OUTPUT_HTML_DIR}")
         file(REMOVE_RECURSE "${LCOV_OUTPUT_HTML_DIR}")
     endif()
 
-    set(LCOVR_COMMAND_LINE
-        "${CTEST_LCOV_EXECUTABLE}" "--capture" "--no-external"
+    set(LCOV_COMMAND_LINE
+        "${CTEST_LCOV_EXECUTABLE}"
+        "--capture" "--no-external"
         "--directory" "${CTEST_BINARY_DIRECTORY}"
         "--base-directory" "${CTEST_SOURCE_DIRECTORY}"
-        "--output-file" "lcov_coverage_1.info"
+        "--output-file" ".lcov/coverage_1.info"
         ${LCOV_OPTIONS}
         ${CTEST_LCOV_EXTRA_FLAGS})
-    ctest_ext_info("Generate lcov report : ${LCOVR_COMMAND_LINE}")
-    execute_process(COMMAND ${LCOVR_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+    ctest_ext_info("Generate lcov report : ${LCOV_COMMAND_LINE}")
+    execute_process(COMMAND ${LCOV_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
 
-    foreach(e ${LCOV_EXTRACT})
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy "lcov_coverage_1.info" "lcov_coverage_2.info"
+    if(LCOV_EXTRACT)
+        execute_process(
+            COMMAND "${CMAKE_COMMAND}" "-E" "copy" ".lcov/coverage_1.info" ".lcov/coverage_2.info"
             WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
 
-        set(LCOVR_COMMAND_LINE
+        set(LCOV_COMMAND_LINE
             "${CTEST_LCOV_EXECUTABLE}"
-            "--extract" "lcov_coverage_2.info" "${e}"
-            "--output-file" "lcov_coverage_1.info"
+            "--extract" ".lcov/coverage_2.info" "${LCOV_EXTRACT}"
+            "--output-file" ".lcov/coverage_1.info"
             ${LCOV_OPTIONS}
             ${CTEST_LCOV_EXTRA_FLAGS})
-        ctest_ext_info("Extract pattern from lcov report : ${LCOVR_COMMAND_LINE}")
-        execute_process(COMMAND ${LCOVR_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+        ctest_ext_info("Extract pattern from lcov report : ${LCOV_COMMAND_LINE}")
+        execute_process(COMMAND ${LCOV_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
     endforeach()
 
-    foreach(r ${LCOV_REMOVE})
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy "lcov_coverage_1.info" "lcov_coverage_2.info"
+    if(LCOV_REMOVE)
+        execute_process(
+            COMMAND "${CMAKE_COMMAND}" "-E" "copy" ".lcov/coverage_1.info" ".lcov/coverage_2.info"
             WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
 
-        set(LCOVR_COMMAND_LINE
+        set(LCOV_COMMAND_LINE
             "${CTEST_LCOV_EXECUTABLE}"
-            "--remove" "lcov_coverage_2.info" "${r}"
-            "--output-file" "lcov_coverage_1.info"
+            "--remove" ".lcov/coverage_2.info" "${LCOV_REMOVE}"
+            "--output-file" ".lcov/coverage_1.info"
             ${LCOV_OPTIONS}
             ${CTEST_LCOV_EXTRA_FLAGS})
-        ctest_ext_info("Remove pattern from lcov report : ${LCOVR_COMMAND_LINE}")
-        execute_process(COMMAND ${LCOVR_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
+        ctest_ext_info("Remove pattern from lcov report : ${LCOV_COMMAND_LINE}")
+        execute_process(COMMAND ${LCOV_COMMAND_LINE} WORKING_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
     endforeach()
 
     set(GENHTML_COMMAND_LINE
-        "${CTEST_GENHTML_EXECUTABLE}" "lcov_coverage_1.info"
+        "${CTEST_GENHTML_EXECUTABLE}" ".lcov/coverage_1.info"
+        "--prefix" "${CTEST_SOURCE_DIRECTORY}"
         "--output-directory" "${LCOV_OUTPUT_HTML_DIR}"
+        ${LCOV_OPTIONS}
+        ${CTEST_LCOV_EXTRA_FLAGS}
         ${LCOV_GENTHML_OPTIONS}
         ${CTEST_GENHTML_EXTRA_FLAGS})
     ctest_ext_info("Convert lcov report to html : ${GENHTML_COMMAND_LINE}")

@@ -227,12 +227,16 @@ which by default is equal to `${CTEST_BINARY_DIRECTORY}/gcovr`
 
 Runs `lcov` and `genthml` commands to generate coverage report.
 
-    run_lcov([OUTPUT_HTML_DIR <output_html_dir>]
+    run_lcov([BRANCH] [FUNCTION]
+             [OUTPUT_HTML_DIR <output_html_dir>]
              [EXTRACT] <extract patterns>
              [REMOVE] <remove patterns>
-             [OPTIONS <lcov extra options>] [GENTHML_OPTIONS <genhtml extra options>])
+             [OPTIONS <lcov extra options>]
+             [GENTHML_OPTIONS <genhtml extra options>])
 
 This is an internal function, which is used in `ctest_ext_coverage`.
+
+`BRANCH` and `FUNCTION` options turn on branch and function coverage analysis.
 
 The `lcov` command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
 The binaries must be built with `gcov` coverage support.
