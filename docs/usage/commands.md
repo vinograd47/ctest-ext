@@ -178,6 +178,12 @@ The command will be available after `ctest_ext_start` call.
 
 `CTEST_NOTES_LOG_FILE` variable must be defined.
 
+### ctext_ext_log_stage
+
+Log new stage start.
+
+    ctext_ext_log_stage(<message>)
+
 ## Internal commands
 
 ### ctest_ext_dump_notes

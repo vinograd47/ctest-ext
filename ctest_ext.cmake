@@ -28,7 +28,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.4)
+set(CTEST_EXT_VERSION  0.5)
 
 include(CMakeParseArguments)
 
@@ -114,13 +114,47 @@ endfunction()
 # Logging commands
 ##################################################################################
 
+set_from_env(CTEST_EXT_COLOR_OUTPUT)
+
+if(CTEST_EXT_COLOR_OUTPUT)
+    string(ASCII 27 CTEST_EXT_TEXT_STYLE_ESC)
+
+    set_ifndef(CTEST_EXT_TEXT_STYLE_RESET          "${CTEST_EXT_TEXT_STYLE_ESC}[m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD           "${CTEST_EXT_TEXT_STYLE_ESC}[1m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_RED            "${CTEST_EXT_TEXT_STYLE_ESC}[31m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_GREEN          "${CTEST_EXT_TEXT_STYLE_ESC}[32m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_YELLOW         "${CTEST_EXT_TEXT_STYLE_ESC}[33m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BLUE           "${CTEST_EXT_TEXT_STYLE_ESC}[34m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_MAGENTA        "${CTEST_EXT_TEXT_STYLE_ESC}[35m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_CYAN           "${CTEST_EXT_TEXT_STYLE_ESC}[36m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_WHITE          "${CTEST_EXT_TEXT_STYLE_ESC}[37m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLDRED        "${CTEST_EXT_TEXT_STYLE_ESC}[1;31m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_GREEN     "${CTEST_EXT_TEXT_STYLE_ESC}[1;32m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_YELLOW    "${CTEST_EXT_TEXT_STYLE_ESC}[1;33m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_BLUE      "${CTEST_EXT_TEXT_STYLE_ESC}[1;34m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_MAGENTA   "${CTEST_EXT_TEXT_STYLE_ESC}[1;35m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_CYAN      "${CTEST_EXT_TEXT_STYLE_ESC}[1;36m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_WHITE     "${CTEST_EXT_TEXT_STYLE_ESC}[1;37m")
+endif()
+
+#
+# ctext_ext_log_stage(<message>)
+#
+#   Log new stage start.
+#
+function(ctext_ext_log_stage)
+    message("${CTEST_EXT_TEXT_STYLE_BOLD_CYAN}[CTEST EXT STAGE] ==========================================================================${CTEST_EXT_TEXT_STYLE_RESET}")
+    message("${CTEST_EXT_TEXT_STYLE_BOLD_CYAN}[CTEST EXT STAGE] ${ARGN}")
+    message("${CTEST_EXT_TEXT_STYLE_BOLD_CYAN}[CTEST EXT STAGE] ==========================================================================${CTEST_EXT_TEXT_STYLE_RESET}")
+endfunction()
+
 #
 # ctest_ext_info(<message>)
 #
 #   Prints `<message>` to standard output with `[CTEST EXT INFO]` prefix for better visibility.
 #
 function(ctest_ext_info)
-    message("[CTEST EXT INFO] ${ARGN}")
+    message("${CTEST_EXT_TEXT_STYLE_BOLD_BLUE}[CTEST EXT INFO] ${ARGN}${CTEST_EXT_TEXT_STYLE_RESET}")
 endfunction()
 
 #
@@ -137,7 +171,7 @@ endfunction()
 function(ctest_ext_note)
     check_vars_def(CTEST_NOTES_LOG_FILE)
 
-    message("[CTEST EXT NOTE] ${ARGN}")
+    message("${CTEST_EXT_TEXT_STYLE_BOLD_MAGENTA}[CTEST EXT NOTE] ${ARGN}${CTEST_EXT_TEXT_STYLE_RESET}")
     file(APPEND "${CTEST_NOTES_LOG_FILE}" "${ARGN}\n")
 endfunction()
 
@@ -148,9 +182,7 @@ endfunction()
 #   This is an internal function, which is used by `ctest_ext_start`.
 #
 function(ctest_ext_dump_notes)
-    ctest_ext_info("==========================================================================")
-    ctest_ext_info("CTest configuration information")
-    ctest_ext_info("==========================================================================")
+    ctext_ext_log_stage("CTest configuration information")
 
     get_git_repo_info("${CTEST_SOURCE_DIRECTORY}" CTEST_CURRENT_BRANCH CTEST_CURRENT_REVISION)
 
@@ -705,9 +737,7 @@ macro(ctest_ext_init)
     set(HAVE_UPDATES TRUE)
 
     if(CTEST_STAGE MATCHES "Start")
-        ctest_ext_info("==========================================================================")
-        ctest_ext_info("Initialize testing for MODEL ${CTEST_MODEL} (CTest Ext module version ${CTEST_EXT_VERSION})")
-        ctest_ext_info("==========================================================================")
+        ctext_ext_log_stage("Initialize testing for MODEL ${CTEST_MODEL} (CTest Ext module version ${CTEST_EXT_VERSION})")
 
         if(NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
             if(NOT DEFINED CTEST_CHECKOUT_COMMAND)
@@ -812,9 +842,7 @@ macro(ctest_ext_start)
 
     # Start
 
-    ctest_ext_info("==========================================================================")
-    ctest_ext_info("Start testing MODEL ${CTEST_MODEL} TRACK ${CTEST_TRACK}")
-    ctest_ext_info("==========================================================================")
+    ctext_ext_log_stage("Start testing MODEL ${CTEST_MODEL} TRACK ${CTEST_TRACK}")
 
     ctest_start("${CTEST_MODEL}" TRACK "${CTEST_TRACK}" APPEND)
 
@@ -837,9 +865,7 @@ endmacro()
 #
 macro(ctest_ext_configure)
     if(CTEST_STAGE MATCHES "Configure")
-        ctest_ext_info("==========================================================================")
-        ctest_ext_info("Configure")
-        ctest_ext_info("==========================================================================")
+        ctext_ext_log_stage("Configure")
 
         if(NOT EXISTS "${CTEST_BINARY_DIRECTORY}")
             ctest_ext_info("Create binary directory : ${CTEST_BINARY_DIRECTORY}")
@@ -874,9 +900,7 @@ function(ctest_ext_build)
     cmake_parse_arguments(BUILD "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(CTEST_STAGE MATCHES "Build")
-        ctest_ext_info("==========================================================================")
-        ctest_ext_info("Build")
-        ctest_ext_info("==========================================================================")
+        ctext_ext_log_stage("Build")
 
         if(BUILD_TARGET)
             ctest_ext_info("Build target : ${BUILD_TARGET}")
@@ -926,9 +950,7 @@ endfunction()
 #
 function(ctest_ext_test)
     if(CTEST_WITH_TESTS AND CTEST_STAGE MATCHES "Test")
-        ctest_ext_info("==========================================================================")
-        ctest_ext_info("Test")
-        ctest_ext_info("==========================================================================")
+        ctext_ext_log_stage("Test")
 
         ctest_ext_info("ctest_test parameters : ${ARGN}")
         ctest_test(${ARGN})
@@ -953,18 +975,14 @@ function(ctest_ext_coverage)
 
     if(CTEST_WITH_TESTS AND CTEST_STAGE MATCHES "Coverage")
         if(CTEST_WITH_GCOVR)
-            ctest_ext_info("==========================================================================")
-            ctest_ext_info("Generate gcovr coverage report")
-            ctest_ext_info("==========================================================================")
+            ctext_ext_log_stage("Generate gcovr coverage report")
 
             ctest_ext_info("run_gcovr parameters : ${COVERAGE_GCOVR}")
             run_gcovr(${COVERAGE_GCOVR})
         endif()
 
         if(CTEST_WITH_LCOV)
-            ctest_ext_info("==========================================================================")
-            ctest_ext_info("Generate lcov coverage report")
-            ctest_ext_info("==========================================================================")
+            ctext_ext_log_stage("Generate lcov coverage report")
 
             ctest_ext_info("run_lcov parameters : ${COVERAGE_LCOV}")
             run_lcov(${COVERAGE_LCOV})
@@ -973,9 +991,7 @@ function(ctest_ext_coverage)
         if(CTEST_WITH_COVERAGE)
             check_vars_def(CTEST_COVERAGE_COMMAND)
 
-            ctest_ext_info("==========================================================================")
-            ctest_ext_info("Generate CTest coverage report")
-            ctest_ext_info("==========================================================================")
+            ctext_ext_log_stage("Generate CTest coverage report")
 
             ctest_ext_info("ctest_coverage parameters : ${COVERAGE_CTEST}")
             ctest_coverage(${COVERAGE_CTEST})
@@ -996,9 +1012,7 @@ function(ctest_ext_memcheck)
     if(CTEST_WITH_MEMCHECK AND CTEST_STAGE MATCHES "MemCheck")
         check_vars_def(CTEST_MEMORYCHECK_COMMAND)
 
-        ctest_ext_info("==========================================================================")
-        ctest_ext_info("MemCheck")
-        ctest_ext_info("==========================================================================")
+        ctext_ext_log_stage("MemCheck")
 
         ctest_ext_info("ctest_memcheck parameters : ${ARGN}")
         ctest_memcheck(${ARGN})
@@ -1016,9 +1030,7 @@ endfunction()
 #
 function(ctest_ext_submit)
     if(CTEST_WITH_SUBMIT AND CTEST_STAGE MATCHES "Submit")
-        ctest_ext_info("==========================================================================")
-        ctest_ext_info("Submit")
-        ctest_ext_info("==========================================================================")
+        ctext_ext_log_stage("Submit")
 
         if(CTEST_UPLOAD_FILES)
             ctest_ext_info("Upload files : ${CTEST_UPLOAD_FILES}")
