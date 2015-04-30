@@ -44,7 +44,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.6.0)
+set(CTEST_EXT_VERSION  0.6.1)
 
 #
 # Auxiliary modules
@@ -351,17 +351,24 @@ macro(ctest_ext_configure)
     if(CTEST_STAGE MATCHES "Configure")
         ctext_ext_log_stage("Configure")
 
+        if(CTEST_EMPTY_BINARY_DIRECTORY)
+            ctest_ext_info("Clean binary directory : ${CTEST_BINARY_DIRECTORY}")
+
+            if(EXISTS "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
+                ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
+            else()
+                file(REMOVE_RECURSE "${CTEST_BINARY_DIRECTORY}")
+            endif()
+        endif()
+
         if(NOT EXISTS "${CTEST_BINARY_DIRECTORY}")
             ctest_ext_info("Create binary directory : ${CTEST_BINARY_DIRECTORY}")
             file(MAKE_DIRECTORY "${CTEST_BINARY_DIRECTORY}")
-        elseif(CTEST_EMPTY_BINARY_DIRECTORY)
-            ctest_ext_info("Clean binary directory : ${CTEST_BINARY_DIRECTORY}")
-            ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
         endif()
 
-        if(CTEST_UPDATE_CMAKE_CACHE AND EXISTS "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
-            ctest_ext_info("Remove old CMake cache : ${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
-            file(REMOVE "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt")
+        if(CTEST_UPDATE_CMAKE_CACHE)
+            ctest_ext_info("Rewrite CMake cache : ${CTEST_INITIAL_CACHE}")
+            file(WRITE "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt" ${CTEST_INITIAL_CACHE})
         endif()
 
         ctest_configure(OPTIONS "${CTEST_CMAKE_EXTRA_OPTIONS}")
