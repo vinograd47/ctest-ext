@@ -8,34 +8,6 @@ True, if the testing script should overwrite CMake cache on each launch.
 
 True, if the testing script should clean build directory on each launch.
 
-## CTEST_WITH_TESTS
-
-Enable/disable test launching.
-
-## CTEST_TEST_TIMEOUT
-
-Timeout in seconds for single test execution.
-
-## CTEST_WITH_MEMCHECK
-
-Enable/disable memory check analysis.
-
-## CTEST_WITH_COVERAGE
-
-Enable/disable CTest-based code coverage analysis.
-
-## CTEST_WITH_GCOVR
-
-Enable/disable gcovr-based code coverage analysis.
-
-## CTEST_WITH_LCOV
-
-Enable/disable lcov-based code coverage analysis.
-
-## CTEST_WITH_SUBMIT
-
-Enable/disable submission to remote server.
-
 ## CTEST_CMAKE_GENERATOR
 
 CMake generator.
@@ -44,79 +16,50 @@ CMake generator.
 
 CMake configuration type (eg. Release, Debug).
 
+## CTEST_INITIAL_CACHE
+
+Initial CMake cache.
+
+## CTEST_CMAKE_EXTRA_OPTIONS
+
+Extra options for CMake configuration command.
+
 ## CTEST_BUILD_FLAGS
 
 Extra options for build command. For example:
 
     set(CTEST_BUILD_FLAGS "-j7")
 
-## CTEST_MEMORYCHECK_COMMAND
+## CTEST_WITH_TESTS
 
-Path to memory check tool. Used only if `CTEST_WITH_MEMCHECK` is enabled.
+Enable/disable test launching.
 
-## CTEST_MEMORYCHECK_SUPPRESSIONS_FILE
+## CTEST_TEST_TIMEOUT
 
-Path to suppressions file for the memory check tool.
-By default the testing script will use internal file for the `valgrind` tool.
+Timeout in seconds for single test execution.
 
-## CTEST_MEMORYCHECK_COMMAND_OPTIONS
+## CTEST_WITH_COVERAGE
 
-Extra options for the memory check command.
+Enable/disable code coverage analysis.
 
-## CTEST_COVERAGE_COMMAND
+## CTEST_COVERAGE_TOOL
 
-Path to code coverage analysis tool. Used only if `CTEST_WITH_COVERAGE` is enabled.
+Tool used for code coverage analysis:
 
-## CTEST_COVERAGE_EXTRA_FLAGS
+  - GCOVR
+  - LCOV
+  - CDASH
 
-Extra options for the code coverage analysis command.
+## CTEST_WITH_DYNAMIC_ANALYSIS
 
-## CTEST_GCOVR_EXECUTABLE
+Enable/disable dynamic analysis.
 
-Path to `gcovr` command line tool.
+## CTEST_DYNAMIC_ANALYSIS_TOOL
 
-## CTEST_GCOVR_EXTRA_FLAGS
+Tool used for dynamic analysis:
 
-Extra options for the `gcovr` command.
+  - CDASH
 
-## CTEST_GCOVR_REPORT_DIR
+## CTEST_WITH_SUBMIT
 
-Output directory for `gcovr` reports.
-
-By default is equal to `${CTEST_BINARY_DIRECTORY}/gcovr`.
-
-## CTEST_LCOV_EXECUTABLE
-
-Path to `lcov` command line tool.
-
-## CTEST_LCOV_EXTRA_FLAGS
-
-Extra options for the `lcov` command.
-
-## CTEST_GENHTML_EXECUTABLE
-
-Path to `genhtml` command line tool.
-
-## CTEST_GENTHML_EXTRA_FLAGS
-
-Extra options for the `genhtml` command.
-
-## CTEST_LCOV_REPORT_DIR
-
-Output directory for `lcov` reports.
-
-By default is equal to `${CTEST_BINARY_DIRECTORY}/lcov`.
-
-## CTEST_NOTES_FILES
-
-List of notes files, which should be included into submission.
-
-## CTEST_UPLOAD_FILES
-
-List of files, which should be uploaded to the remote server.
-
-By default, CMake cache will be uploaded.
-
-## CTEST_TRACK
-
-Track for submission. By default is equal to ${CTEST_MODEL}.
+Enable/disable submission to remote server.

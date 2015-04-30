@@ -1,5 +1,9 @@
 #  Mandatory testing options
 
+## CTEST_PROJECT_NAME
+
+Project name.
+
 ## CTEST_TARGET_SYSTEM
 
 This option describes the target platform for the testing.

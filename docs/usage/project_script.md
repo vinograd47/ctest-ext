@@ -48,7 +48,7 @@ Use the following code for that purpose:
 
     if(NOT CTEST_EXT_INCLUDED)
         function(download_ctest_ext)
-            message("Update CTest Extension module")
+            message("Download latest version of CTest Extension module")
 
             find_package(Git QUIET)
 
@@ -66,20 +66,20 @@ Use the following code for that purpose:
 
             file(REMOVE_RECURSE "${tmp_dir}")
 
-            set(CTEST_EXT_MODULE_PATH "${repo_dir}/ctest_ext.cmake" PARENT_SCOPE)
+            set(CTEST_EXT_MODULE_PATH "${repo_dir}" PARENT_SCOPE)
         endfunction()
 
         if(NOT DEFINED CTEST_EXT_MODULE_PATH)
-            if(DEFINED ENV{CTEST_EXT_MODULE_PATH} AND EXISTS "$ENV{CTEST_EXT_MODULE_PATH}")
+            if(DEFINED ENV{CTEST_EXT_MODULE_PATH} AND EXISTS "$ENV{CTEST_EXT_MODULE_PATH}/ctest_ext.cmake")
                 set(CTEST_EXT_MODULE_PATH "$ENV{CTEST_EXT_MODULE_PATH}")
-            elseif(EXISTS "${CMAKE_CURRENT_LIST_DIR}/ctest_ext.cmake")
-                set(CTEST_EXT_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ctest_ext.cmake")
+            elseif(EXISTS "${CMAKE_CURRENT_LIST_DIR}/ctest-ext/ctest_ext.cmake")
+                set(CTEST_EXT_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/ctest-ext")
             else()
                 download_ctest_ext()
             endif()
         endif()
 
-        include("${CTEST_EXT_MODULE_PATH}")
+        include("${CTEST_EXT_MODULE_PATH}/ctest_ext.cmake")
     endif()
 
 The code performs the following steps:
@@ -137,11 +137,13 @@ using provided **Target system** and **Testing model** notations.
     endif()
 
     if(CTEST_MODEL MATCHES "Nightly")
-        set_ifndef(CTEST_WITH_COVERAGE      TRUE)
-        set_ifndef(CTEST_WITH_MEMCHECK      TRUE)
+        set_ifndef(CTEST_WITH_COVERAGE          TRUE)
+        set_ifndef(CTEST_COVERAGE_TOOL          "CDASH")
+        set_ifndef(CTEST_WITH_DYNAMIC_ANALYSIS  TRUE)
+        set_ifndef(CTEST_DYNAMIC_ANALYSIS_TOOL  "CDASH")
     else()
-        set_ifndef(CTEST_WITH_COVERAGE      FALSE)
-        set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
+        set_ifndef(CTEST_WITH_COVERAGE          FALSE)
+        set_ifndef(CTEST_WITH_DYNAMIC_ANALYSIS  FALSE)
     endif()
 
     if(CTEST_MODEL MATCHES "Continuous")
@@ -167,12 +169,12 @@ using provided **Target system** and **Testing model** notations.
         set_ifndef(CTEST_CONFIGURATION_TYPE "Debug")
     endif()
 
-    add_cmake_cache_entry("ENABLE_CTEST" "ON")
+    add_cmake_cache_entry("ENABLE_CTEST" TYPE "BOOL" "ON")
 
     if(CTEST_WITH_COVERAGE)
-        add_cmake_cache_entry("ENABLE_COVERAGE" "ON")
+        add_cmake_cache_entry("ENABLE_COVERAGE" TYPE "BOOL" "ON")
     else()
-        add_cmake_cache_entry("ENABLE_COVERAGE" "OFF")
+        add_cmake_cache_entry("ENABLE_COVERAGE" TYPE "BOOL" "OFF")
     endif()
 
     if(CTEST_MODEL MATCHES "Documentation")
@@ -217,9 +219,15 @@ Now we can run tests, calculate coverage, perform dynamic analysis.
         ctest_ext_test(EXCLUDE_LABEL "Light")
     endif()
 
-    ctest_ext_coverage(CTEST LABELS "Module")
+    ctest_ext_coverage(
+        CDASH
+            LABELS "Module"
+    )
 
-    ctest_ext_memcheck(INCLUDE_LABEL "Light")
+    ctest_ext_dynamic_analysis(
+        CDASH
+            INCLUDE_LABEL "Light"
+    )
 
 ### 6. Submit results to remote server
 

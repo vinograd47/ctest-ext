@@ -10,6 +10,6 @@ The testing script supports step-by-step mode, to split all steps on CI system. 
     $ ctest -VV -S ~/Dashboards/project/project_test.cmake,Build
     $ ctest -VV -S ~/Dashboards/project/project_test.cmake,Test
     $ ctest -VV -S ~/Dashboards/project/project_test.cmake,Coverage
-    $ ctest -VV -S ~/Dashboards/project/project_test.cmake,MemCheck
+    $ ctest -VV -S ~/Dashboards/project/project_test.cmake,DynamicAnalysis
     $ ctest -VV -S ~/Dashboards/project/project_test.cmake,Submit
     $ ctest -VV -S ~/Dashboards/project/project_test.cmake,Extra

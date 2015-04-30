@@ -6,6 +6,12 @@ Update source folder to latest state in remote repository. The option is enabled
 
 **Note:** This operation will reset current source folder state and will discard all not committed changes.
 
+## CTEST_SCM_TOOL
+
+SCM Tool. Supported values:
+
+  - `GIT`
+
 ## CTEST_GIT_COMMAND
 
 Path to the `git` command line tool.

@@ -11,7 +11,7 @@ Initializes CTest Ext module for dashboard testing.
 
     ctest_ext_init()
 
-The function sets dashboard options to default values (if they were not defined prior the call)
+The function sets dashboard settings to default values (if they were not defined prior the call)
 and performs project repository checkout/update if needed.
 
 ### ctest_ext_start
@@ -20,7 +20,7 @@ Starts dashboard testing.
 
     ctest_ext_start()
 
-The function sets testing options to default values (if they were not defined prior the call)
+The function sets testing settings to default values (if they were not defined prior the call)
 and initializes logging mechanism.
 
 ### ctest_ext_configure
@@ -47,20 +47,21 @@ The function will pass its arguments to `ctest_test` as is.
 
 ### ctest_ext_coverage
 
-Collects coverage reports (in gcovr or/and in CTest format).
+Collects coverage reports.
 
     ctest_ext_coverage(
         [GCOVR <options for run_gcovr>]
         [LCOV <options for run_lcov>]
-        [CTEST <options for ctest_coverage>])
+        [CDASH <options for ctest_coverage>])
 
-The function passes own arguments to `run_gcovr` and `ctest_coverage` as is.
+The function passes own arguments to `run_gcovr`, `run_lcov` and `ctest_coverage` as is.
 
-### ctest_ext_memcheck
+### ctest_ext_dynamic_analysis
 
 Runs dynamic analysis testing.
 
-    ctest_ext_memcheck(<arguments>)
+    ctest_ext_dynamic_analysis(
+        CDASH <options for ctest_memcheck>)
 
 The function will pass its arguments to `ctest_memcheck` as is.
 
@@ -76,7 +77,7 @@ Submits testing results to remote server.
 
 Adds new CMake cache entry.
 
-    add_cmake_cache_entry(<name> <value> [TYPE <type>])
+    add_cmake_cache_entry(<name> <value> [TYPE <type>] [FORCE])
 
 ## Git repository control commands
 
@@ -139,6 +140,12 @@ only if the `<variable>` is not defined and the environment variable is defined.
 
     set_from_env(<variable1> <variable2> ...)
 
+### override_from_ctest_vars
+
+Overrides all variables from `CTEST_<var_name>` values, if they are defined.
+
+    override_from_ctest_vars(<variable1> <variable2> ...)
+
 ### check_vars_def
 
 Checks that all variables are defined.
@@ -156,6 +163,12 @@ Checks that all variables are defined and point to existed file/directory.
 Checks that <variable> matches one of the regular expression from the input list.
 
     check_if_matches(<variable> <regexp1> <regexp2> ...)
+
+### list_filter_out
+
+Filter out all items in the `<list>`, which match one of the regular expression from the input list.
+
+    list_filter_out(<list> <regexp1> <regexp2> ...)
 
 ## Logging commands
 
@@ -201,54 +214,69 @@ Runs `gcovr` command to generate coverage report.
     run_gcovr([XML] [HTML]
               [FILTER <filter>]
               [OUTPUT_BASE_NAME <output_dir>]
-              [REPORT_BASE_DIR <report_name>]
-              [OPTIONS <option1> <option2> ...])
+              [XML_DIR <xml output dir>]
+              [HTML_DIR <html output dir>]
+              [EXTRA_OPTIONS <option1> <option2> ...])
 
 This is an internal function, which is used in `ctest_ext_coverage`.
 
-The `gcovr` command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
-The binaries must be built with `gcov` coverage support.
-The `gcovr` command must be run after all tests.
+The gcovr command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
+The binaries must be built with gcov coverage support.
+The gcovr command must be run after all tests.
 
 Coverage reports will be generated in:
 
-  - `<REPORT_BASE_DIR>/xml/<OUTPUT_BASE_NAME>.xml`
-  - `<REPORT_BASE_DIR>/html/<OUTPUT_BASE_NAME>.html`
+  - <XML_DIR>/<OUTPUT_BASE_NAME>.xml
+  - <HTML_DIR>/<OUTPUT_BASE_NAME>.html
 
 `XML` and `HTML` options choose coverage report format (both can be specified).
 
 `FILTER` options is used to specify file filter for report.
+If not specified `${CTEST_SOURCE_DIRECTORY}/*` will be used.
 
-`OUTPUT_BASE_NAME` specifies base name for output reports (`coverage` by default).
+`OUTPUT_BASE_NAME` specifies base name for output reports.
+If not specified `coverage` will be used.
 
-`REPORT_BASE_DIR` specifies base directory for output reports.
-If not specified `CTEST_GCOVR_REPORT_DIR` variable is used,
-which by default is equal to `${CTEST_BINARY_DIRECTORY}/gcovr`
+`XML_DIR` specifies base directory for XML reports.
+If not specified `${CTEST_BINARY_DIRECTORY}/coverage-gcovr/xml` will be used.
 
-`OPTIONS` specifies additional options for `gcovr` command line.
+`HTML_DIR` specifies base directory for HTML reports.
+If not specified `${CTEST_BINARY_DIRECTORY}/coverage-gcovr/html` will be used.
 
-`CTEST_GCOVR_EXECUTABLE` variable must be defined and must point to `gcovr` command.
+`EXTRA_OPTIONS` specifies additional options for gcovr command line.
+
+If `CTEST_GCOVR_<option_name>` variable if defined, it will override the value of
+`<option_name>` option.
+
+`CTEST_GCOVR_EXECUTABLE` variable must be defined and must point to gcovr command.
 
 ### run_lcov
 
 Runs `lcov` and `genthml` commands to generate coverage report.
 
-    run_lcov([BRANCH] [FUNCTION]
+    run_lcov([BRANCH_COVERAGE] [FUNCTION_COVERAGE]
+             [SKIP_HTML]
+             [OUTPUT_LCOV_DIR <output_lcov_dir>]
              [OUTPUT_HTML_DIR <output_html_dir>]
              [EXTRACT] <extract patterns>
              [REMOVE] <remove patterns>
-             [OPTIONS <lcov extra options>]
-             [GENTHML_OPTIONS <genhtml extra options>])
+             [EXTRA_LCOV_OPTIONS <lcov extra options>]
+             [EXTRA_GENTHML_OPTIONS <genhtml extra options>])
+
+Runs `lcov` and `genthml` commands to generate coverage report.
 
 This is an internal function, which is used in `ctest_ext_coverage`.
 
-`BRANCH` and `FUNCTION` options turn on branch and function coverage analysis.
+`BRANCH_COVERAGE` and `FUNCTION_COVERAGE` options turn on branch and function coverage analysis.
+
+`SKIP_HTML` disables html report generation.
 
 The `lcov` command is run in `CTEST_BINARY_DIRECTORY` directory relatively to `CTEST_SOURCE_DIRECTORY` directory.
 The binaries must be built with `gcov` coverage support.
 The `lcov` command must be run after all tests.
 
-`EXTRACT` and `REMOVE` options can be used to filter out unnecessary files from final report.
+If `CTEST_LCOV_<option_name>` variable if defined, it will override the value of
+`<option_name>` option.
 
 `CTEST_LCOV_EXECUTABLE` variable must be defined and must point to `lcov` command.
 `CTEST_GENHTML_EXECUTABLE` variable must be defined and must point to `genhtml` command.

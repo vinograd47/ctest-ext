@@ -10,6 +10,8 @@ include("@CTEST_EXT_ROOT_DIR@/ctest_ext.cmake")
 # Initialize testing
 #
 
+include("@TEMPLATE_PROJECT_DIR@/CTestConfig.cmake") # To get CTEST_PROJECT_NAME
+
 set(CTEST_DASHBOARD_ROOT     "@DASHBOARD_ROOT@")
 set(CTEST_SOURCE_DIRECTORY   "@TEMPLATE_PROJECT_DIR@")
 
@@ -26,25 +28,25 @@ check_if_matches(CTEST_MODEL            "^Experimental$" "^Nightly$")
 # Configure the testing model (set options, not specified by user, to default values)
 #
 
-set_ifndef(CTEST_UPDATE_CMAKE_CACHE     TRUE)
-set_ifndef(CTEST_EMPTY_BINARY_DIRECTORY FALSE)
-set_ifndef(CTEST_WITH_TESTS             TRUE)
-set_ifndef(CTEST_WITH_COVERAGE          FALSE)
-set_ifndef(CTEST_WITH_LCOV              FALSE)
+set_ifndef(CTEST_UPDATE_CMAKE_CACHE             TRUE)
+set_ifndef(CTEST_EMPTY_BINARY_DIRECTORY         FALSE)
+set_ifndef(CTEST_WITH_TESTS                     TRUE)
 
 if(CTEST_MODEL MATCHES "Nightly")
     if(CTEST_GCOVR_EXECUTABLE AND EXISTS "${CTEST_GCOVR_EXECUTABLE}")
-        set_ifndef(CTEST_WITH_GCOVR     TRUE)
+        set_ifndef(CTEST_WITH_COVERAGE          TRUE)
+        set_ifndef(CTEST_COVERAGE_TOOL          "GCOVR")
     endif()
     if(CTEST_MEMORYCHECK_COMMAND AND EXISTS "${CTEST_MEMORYCHECK_COMMAND}")
-        set_ifndef(CTEST_WITH_MEMCHECK  TRUE)
+        set_ifndef(CTEST_WITH_DYNAMIC_ANALYSIS  TRUE)
+        set_ifndef(CTEST_DYNAMIC_ANALYSIS_TOOL  "CDASH")
     endif()
 else()
-    set_ifndef(CTEST_WITH_GCOVR         FALSE)
-    set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
+    set_ifndef(CTEST_WITH_COVERAGE              FALSE)
+    set_ifndef(CTEST_WITH_DYNAMIC_ANALYSIS      FALSE)
 endif()
 
-set_ifndef(CTEST_WITH_SUBMIT            FALSE)
+set_ifndef(CTEST_WITH_SUBMIT                    FALSE)
 
 #
 # Configure cmake options
@@ -88,14 +90,15 @@ ctest_ext_test()
 #
 
 ctest_ext_coverage(
-    GCOVR HTML FILTER ".*/main.cpp"
-    LCOV REMOVE "template/gtest/*")
+    GCOVR
+        HTML FILTER ".*/main.cpp"
+)
 
 #
 # MemCheck
 #
 
-ctest_ext_memcheck()
+ctest_ext_dynamic_analysis()
 
 #
 # Submit
