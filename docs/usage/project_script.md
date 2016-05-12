@@ -197,17 +197,17 @@ Next steps is
 - Configure project.
 - Build project.
 
-    ctest_ext_start()
+        ctest_ext_start()
 
-    ctest_ext_configure()
+        ctest_ext_configure()
 
-    if(CTEST_MODEL MATCHES "Release")
-        ctest_ext_build(TARGETS "ALL" "package")
-    elseif(CTEST_MODEL MATCHES "Documentation")
-        ctest_ext_build(TARGET "docs")
-    else()
-        ctest_ext_build()
-    endif()
+        if(CTEST_MODEL MATCHES "Release")
+            ctest_ext_build(TARGETS "ALL" "package")
+        elseif(CTEST_MODEL MATCHES "Documentation")
+            ctest_ext_build(TARGET "docs")
+        else()
+            ctest_ext_build()
+        endif()
 
 ### 5. Run tests
 
