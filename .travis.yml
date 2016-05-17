@@ -8,7 +8,7 @@ install:
   - sudo pip install gcovr
   - sudo apt-get install valgrind
   - sudo apt-get install lcov
-  - wget -qO- http://www.cmake.org/files/v3.1/cmake-3.1.0-Linux-x86_64.tar.gz | tar xvz
+  - wget -qO- --no-check-certificate http://www.cmake.org/files/v3.1/cmake-3.1.0-Linux-x86_64.tar.gz | tar xvz
 script:
   - mkdir -p test/build
   - cd test/build
