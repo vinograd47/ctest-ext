@@ -44,7 +44,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.6.1)
+set(CTEST_EXT_VERSION  0.6.2)
 
 #
 # Auxiliary modules
@@ -180,9 +180,6 @@ macro(ctest_ext_init)
     set_ifndef(CTEST_NOTES_LOG_FILE     "${CTEST_DASHBOARD_ROOT}/ctest_ext_notes_log.txt")
 
     set_ifndef(CTEST_WITH_UPDATE        FALSE)
-    if(EXISTS "${CTEST_SOURCE_DIRECTORY}/.git" OR DEFINED CTEST_PROJECT_GIT_URL)
-        set_ifndef(CTEST_SCM_TOOL       "GIT")
-    endif()
 
     #
     # Locate tools
@@ -193,6 +190,10 @@ macro(ctest_ext_init)
         if(GIT_FOUND)
             ctest_ext_info("Found git : ${GIT_EXECUTABLE} (version ${GIT_VERSION_STRING})")
             set_ifndef(CTEST_GIT_COMMAND "${GIT_EXECUTABLE}")
+
+            if(EXISTS "${CTEST_SOURCE_DIRECTORY}/.git" OR DEFINED CTEST_PROJECT_GIT_URL)
+                set_ifndef(CTEST_SCM_TOOL       "GIT")
+            endif()
         endif()
     endif()
 
