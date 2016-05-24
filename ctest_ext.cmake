@@ -1,7 +1,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2014-2015 Vladislav Vinogradov
+# Copyright (c) 2014-2016 Vladislav Vinogradov
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.6.2)
+set(CTEST_EXT_VERSION  0.6.3)
 
 #
 # Auxiliary modules
@@ -515,7 +515,7 @@ function(ctest_ext_dynamic_analysis)
 
             ctest_ext_info("Generate CDASH dynamic analysis report")
 
-            ctest_ext_info("ctest_memcheck parameters : " ${ARGN})
+            ctest_ext_info("ctest_memcheck parameters : " ${DYNAMIC_ANALYSIS_CDASH})
             ctest_memcheck(${DYNAMIC_ANALYSIS_CDASH})
         endif()
     endif()
