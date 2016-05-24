@@ -8,6 +8,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/../ctest_ext.cmake")
 # Initialize testing
 #
 
+set_ifndef(CTEST_PROJECT_NAME       "CTestExtTemplate")
+
 set_ifndef(CTEST_DASHBOARD_ROOT     "${CMAKE_CURRENT_LIST_DIR}/dashboard")
 set_ifndef(CTEST_SOURCE_DIRECTORY   "${CMAKE_CURRENT_LIST_DIR}")
 
@@ -24,37 +26,27 @@ check_if_matches(CTEST_MODEL            "^Experimental$" "^Nightly$")
 # Configure the testing model (set options, not specified by user, to default values)
 #
 
-set_ifndef(CTEST_UPDATE_CMAKE_CACHE     TRUE)
-set_ifndef(CTEST_EMPTY_BINARY_DIRECTORY TRUE)
-set_ifndef(CTEST_WITH_TESTS             TRUE)
-set_ifndef(CTEST_WITH_COVERAGE          FALSE)
-set_ifndef(CTEST_WITH_LCOV              FALSE)
-
 if(CTEST_MODEL MATCHES "Nightly")
-    if(CTEST_GCOVR_EXECUTABLE AND EXISTS "${CTEST_GCOVR_EXECUTABLE}")
-        set_ifndef(CTEST_WITH_GCOVR     TRUE)
+    if(CTEST_GCOVR_EXECUTABLE)
+        set_ifndef(CTEST_WITH_COVERAGE          TRUE)
+        set_ifndef(CTEST_COVERAGE_TOOL          "GCOVR")
     endif()
-    if(CTEST_MEMORYCHECK_COMMAND AND EXISTS "${CTEST_MEMORYCHECK_COMMAND}")
-        set_ifndef(CTEST_WITH_MEMCHECK  TRUE)
-    endif()
-else()
-    set_ifndef(CTEST_WITH_GCOVR         FALSE)
-    set_ifndef(CTEST_WITH_MEMCHECK      FALSE)
-endif()
 
-set_ifndef(CTEST_WITH_SUBMIT            FALSE)
+    if(CTEST_MEMORYCHECK_COMMAND)
+        set_ifndef(CTEST_WITH_DYNAMIC_ANALYSIS  TRUE)
+        set_ifndef(CTEST_DYNAMIC_ANALYSIS_TOOL  "CDASH")
+    endif()
+endif()
 
 #
 # Configure cmake options
 #
 
-if(CTEST_UPDATE_CMAKE_CACHE)
-    set_ifndef(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-    set_ifndef(CTEST_CONFIGURATION_TYPE "Debug")
+set_ifndef(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+set_ifndef(CTEST_CONFIGURATION_TYPE "Debug")
 
-    if(CTEST_WITH_GCOVR)
-        add_cmake_cache_entry("CMAKE_CXX_FLAGS" TYPE "STRING" "--coverage")
-    endif()
+if(CTEST_WITH_COVERAGE)
+    add_cmake_cache_entry("CMAKE_CXX_FLAGS" TYPE "STRING" "--coverage")
 endif()
 
 #
@@ -86,13 +78,14 @@ ctest_ext_test(EXCLUDE "Test3")
 #
 
 ctest_ext_coverage(
-    GCOVR HTML VERBOSE FILTER ".*/main.cpp")
+    GCOVR
+        HTML VERBOSE FILTER ".*/main.cpp")
 
 #
 # MemCheck
 #
 
-ctest_ext_memcheck()
+ctest_ext_dynamic_analysis()
 
 #
 # Submit
