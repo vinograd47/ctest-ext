@@ -94,6 +94,8 @@ The code performs the following steps:
 
 Next step is CTest Ext module initialization:
 
+    set_ifndef(CTEST_PROJECT_NAME "<YOUR_PROJECT_NAME>")
+
     set_ifndef(CTEST_PROJECT_GIT_URL    "https://github.com/user/project.git")
     set_ifndef(CTEST_WITH_UPDATE        TRUE)
 
