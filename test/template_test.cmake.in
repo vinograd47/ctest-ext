@@ -21,7 +21,7 @@ ctest_ext_init()
 # Check supported targets and models
 #
 
-check_if_matches(CTEST_TARGET_SYSTEM    "^Linux" "^MacOS")
+check_if_matches(CTEST_TARGET_SYSTEM    "^Linux" "^Darwin")
 check_if_matches(CTEST_MODEL            "^Experimental$" "^Nightly$")
 
 #
