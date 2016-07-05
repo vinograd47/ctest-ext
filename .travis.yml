@@ -1,15 +1,11 @@
 notifications:
   email: false
 
+sudo: false
+
 language: cpp
-
-os:
-  - linux
-  - osx
-
-compiler:
-  - gcc
-  - clang
+os: linux
+compiler: gcc
 
 addons:
   apt:
@@ -22,7 +18,7 @@ addons:
       - lcov
 
 install:
-  - sudo pip install gcovr
+  - pip install --user gcovr
 
 script:
   - mkdir -p test/build
