@@ -12,17 +12,17 @@ set(TEMPLATE_PROJECT_DIR "${CTEST_EXT_ROOT_DIR}/template")
 set(DASHBOARD_ROOT "${CMAKE_BINARY_DIR}/dashboards/Experimental")
 configure_file("template_test.cmake.in" "${DASHBOARD_ROOT}/template_test.cmake" @ONLY)
 add_test(NAME Experimental
-    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Experimental")
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Experimental" "-E" "Test3")
 add_test(NAME ExperimentalStart
-    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Start" "-DCTEST_MODEL=Experimental")
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Start" "-DCTEST_MODEL=Experimental" "-E" "Test3")
 add_test(NAME ExperimentalConfigure
-    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Configure" "-DCTEST_MODEL=Experimental")
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Configure" "-DCTEST_MODEL=Experimental" "-E" "Test3")
 set_tests_properties(ExperimentalConfigure PROPERTIES DEPENDS ExperimentalStart)
 add_test(NAME ExperimentalBuild
-    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Build" "-DCTEST_MODEL=Experimental")
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Build" "-DCTEST_MODEL=Experimental" "-E" "Test3")
 set_tests_properties(ExperimentalBuild PROPERTIES DEPENDS ExperimentalConfigure)
 add_test(NAME ExperimentalTest
-    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Test" "-DCTEST_MODEL=Experimental")
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake,Test" "-DCTEST_MODEL=Experimental" "-E" "Test3")
 set_tests_properties(ExperimentalTest PROPERTIES DEPENDS ExperimentalBuild)
 add_test(NAME ExperimentalWithFilter
     COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Experimental" "-R" "Test1")
@@ -31,7 +31,7 @@ set_tests_properties(ExperimentalWithFilter PROPERTIES PASS_REGULAR_EXPRESSION "
 set(DASHBOARD_ROOT "${CMAKE_BINARY_DIR}/dashboards/Nightly")
 configure_file("template_test.cmake.in" "${DASHBOARD_ROOT}/template_test.cmake" @ONLY)
 add_test(NAME Nightly
-    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Nightly")
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Nightly" "-E" "Test3")
 
 set(DASHBOARD_ROOT "${CMAKE_BINARY_DIR}/dashboards/InvalidModel")
 configure_file("template_test.cmake.in" "${DASHBOARD_ROOT}/template_test.cmake" @ONLY)
@@ -45,4 +45,11 @@ configure_file("template_test.cmake.in" "${DASHBOARD_ROOT}/template_test.cmake" 
 add_test(NAME InvalidTarget
     COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Experimental" "-DCTEST_TARGET_SYSTEM=Invalid")
 set_tests_properties(InvalidTarget PROPERTIES
+  WILL_FAIL TRUE)
+
+set(DASHBOARD_ROOT "${CMAKE_BINARY_DIR}/dashboards/RunFailingTest")
+configure_file("template_test.cmake.in" "${DASHBOARD_ROOT}/template_test.cmake" @ONLY)
+add_test(NAME RunFailingTest
+    COMMAND "${CMAKE_CTEST_COMMAND}" "-VV" "-S" "${DASHBOARD_ROOT}/template_test.cmake" "-DCTEST_MODEL=Experimental" "-R" "Test3")
+set_tests_properties(RunFailingTest PROPERTIES
   WILL_FAIL TRUE)
