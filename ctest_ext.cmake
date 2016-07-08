@@ -44,7 +44,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.6.3)
+set(CTEST_EXT_VERSION  0.7)
 
 #
 # Auxiliary modules
@@ -61,6 +61,8 @@ include("${CTEST_EXT_MODULES_PATH}/git_repo.cmake")
 include("${CTEST_EXT_MODULES_PATH}/cmake_config.cmake")
 include("${CTEST_EXT_MODULES_PATH}/gcovr.cmake")
 include("${CTEST_EXT_MODULES_PATH}/lcov.cmake")
+
+set(CTEST_FAILURE_MESSAGE "")
 
 #
 # ctest_ext_init()
@@ -372,7 +374,11 @@ macro(ctest_ext_configure)
             file(WRITE "${CTEST_BINARY_DIRECTORY}/CMakeCache.txt" ${CTEST_INITIAL_CACHE})
         endif()
 
-        ctest_configure(OPTIONS "${CTEST_CMAKE_EXTRA_OPTIONS}")
+        ctest_configure(OPTIONS "${CTEST_CMAKE_EXTRA_OPTIONS}" RETURN_VALUE res)
+
+        if(NOT res EQUAL 0)
+            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Configure stage failed" PARENT_SCOPE)
+        endif()
     endif()
 
     ctest_read_custom_files("${CTEST_BINARY_DIRECTORY}")
@@ -395,7 +401,7 @@ function(ctest_ext_build)
 
         if(BUILD_TARGET)
             ctest_ext_info("Build target : " ${BUILD_TARGET})
-            ctest_build(TARGET "${BUILD_TARGET}")
+            ctest_build(TARGET "${BUILD_TARGET}" RETURN_VALUE res)
         elseif(BUILD_TARGETS)
             ctest_ext_info("Build targets : " ${BUILD_TARGETS})
 
@@ -422,10 +428,14 @@ function(ctest_ext_build)
             endforeach()
 
             set(CTEST_BUILD_COMMAND "${CMAKE_COMMAND} -P ${BUILD_SCRIPT}")
-            ctest_build()
+            ctest_build(RETURN_VALUE res)
         else()
             ctest_ext_info("Build target : ALL")
-            ctest_build()
+            ctest_build(RETURN_VALUE res)
+        endif()
+
+        if(NOT res EQUAL 0)
+            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Build stage failed" PARENT_SCOPE)
         endif()
     endif()
 endfunction()
@@ -443,7 +453,11 @@ function(ctest_ext_test)
         ctext_ext_log_stage("Test")
 
         ctest_ext_info("ctest_test parameters : " ${ARGN})
-        ctest_test(${ARGN})
+        ctest_test(${ARGN} RETURN_VALUE res)
+
+        if(NOT res EQUAL 0)
+            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Test stage failed" PARENT_SCOPE)
+        endif()
     endif()
 endfunction()
 
@@ -487,7 +501,11 @@ function(ctest_ext_coverage)
             ctest_ext_info("Generate CDASH coverage report")
 
             ctest_ext_info("ctest_coverage parameters : " ${COVERAGE_CDASH})
-            ctest_coverage(${COVERAGE_CDASH})
+            ctest_coverage(${COVERAGE_CDASH} RETURN_VALUE res)
+
+            if(NOT res EQUAL 0)
+                set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Coverage stage failed" PARENT_SCOPE)
+            endif()
         endif()
     endif()
 endfunction()
@@ -516,7 +534,11 @@ function(ctest_ext_dynamic_analysis)
             ctest_ext_info("Generate CDASH dynamic analysis report")
 
             ctest_ext_info("ctest_memcheck parameters : " ${DYNAMIC_ANALYSIS_CDASH})
-            ctest_memcheck(${DYNAMIC_ANALYSIS_CDASH})
+            ctest_memcheck(${DYNAMIC_ANALYSIS_CDASH} RETURN_VALUE res)
+
+            if(NOT res EQUAL 0)
+                set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Dynamic analysis stage failed" PARENT_SCOPE)
+            endif()
         endif()
     endif()
 endfunction()
@@ -536,6 +558,16 @@ function(ctest_ext_submit)
             ctest_upload(FILES ${CTEST_UPLOAD_FILES})
         endif()
 
-        ctest_submit()
+        ctest_submit(RETURN_VALUE res)
+
+        if(NOT res EQUAL 0)
+            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Submit stage failed" PARENT_SCOPE)
+        endif()
+    endif()
+
+    if(CTEST_FAILURE_MESSAGE)
+        message(FATAL_ERROR "Testing failed with following message: ${CTEST_FAILURE_MESSAGE}")
+    else()
+        message("Testing passed OK")
     endif()
 endfunction()

@@ -27,7 +27,7 @@ TEST(Func, Test2)
 
 TEST(Func, Test3)
 {
-    ASSERT_EQ(4, func_3(2, 2));
+    ASSERT_EQ(6, func_3(3, 2));
 }
 
 int main(int argc, char* argv[])
