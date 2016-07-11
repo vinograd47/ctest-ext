@@ -44,7 +44,7 @@ if(DEFINED CTEST_EXT_INCLUDED)
     return()
 endif()
 set(CTEST_EXT_INCLUDED TRUE)
-set(CTEST_EXT_VERSION  0.7)
+set(CTEST_EXT_VERSION  0.7.1)
 
 #
 # Auxiliary modules
