@@ -3,14 +3,28 @@
 To use CTest Extension module with Travis CI use the following template for the `.travis.yml` file:
 
     language: cpp
+
+    sudo: required
+    dist: trusty
+
     addons:
-        apt:
-            sources:
-                - george-edison55-precise-backports # cmake 3.2.3
-            packages:
-                - cmake
-                - cmake-data
+      apt:
+        packages:
+          - valgrind
+
     env:
-      - CTEST_MODEL=Nightly
+      global:
+        - CTEST_EXT_COLOR_OUTPUT=TRUE
+        - CTEST_BUILD_FLAGS=-j4
+
+    matrix:
+      include:
+        - os: linux
+          compiler: gcc
+          env: CTEST_TARGET_SYSTEM=Linux-gcc    CTEST_MODEL=Nightly
+        - os: osx
+          compiler: clang
+          env: CTEST_TARGET_SYSTEM=MacOS-clang  CTEST_MODEL=Nightly
+
     script:
-      - ctest -VV -S ./project_test.cmake -DCTEST_MODEL=$CTEST_MODEL
+      - ctest -VV -S ./project_test.cmake
