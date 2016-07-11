@@ -1,7 +1,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2015 Vladislav Vinogradov
+# Copyright (c) 2015-2016 Vladislav Vinogradov
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ if(CTEST_EXT_COLOR_OUTPUT)
     set_ifndef(CTEST_EXT_TEXT_STYLE_MAGENTA        "${CTEST_EXT_TEXT_STYLE_ESC}[35m")
     set_ifndef(CTEST_EXT_TEXT_STYLE_CYAN           "${CTEST_EXT_TEXT_STYLE_ESC}[36m")
     set_ifndef(CTEST_EXT_TEXT_STYLE_WHITE          "${CTEST_EXT_TEXT_STYLE_ESC}[37m")
-    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLDRED        "${CTEST_EXT_TEXT_STYLE_ESC}[1;31m")
+    set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_RED       "${CTEST_EXT_TEXT_STYLE_ESC}[1;31m")
     set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_GREEN     "${CTEST_EXT_TEXT_STYLE_ESC}[1;32m")
     set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_YELLOW    "${CTEST_EXT_TEXT_STYLE_ESC}[1;33m")
     set_ifndef(CTEST_EXT_TEXT_STYLE_BOLD_BLUE      "${CTEST_EXT_TEXT_STYLE_ESC}[1;34m")
