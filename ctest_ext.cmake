@@ -561,7 +561,8 @@ function(ctest_ext_submit)
         ctest_submit(RETURN_VALUE res)
 
         if(NOT res EQUAL 0)
-            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Submit stage failed" PARENT_SCOPE)
+            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}\n- Submit stage failed")
+            set(CTEST_FAILURE_MESSAGE "${CTEST_FAILURE_MESSAGE}" PARENT_SCOPE)
         endif()
     endif()
 
